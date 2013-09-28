@@ -1,0 +1,6 @@
+#include "LibraryConsistencyCheck.h"
+
+namespace foo_mpdsrv
+{
+	const GUID LibraryConsistencyWorker::class_guid = { 0x98b45421, 0xe5d9, 0x419b, { 0xbe, 0xba, 0x24, 0xf3, 0x81, 0xc7, 0x34, 0x84 } };
+}
