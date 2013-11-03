@@ -177,7 +177,11 @@ namespace foo_mpdsrv
 		out << "repeat: " << (repeat?1:0) << "\n";
 		out << "random: " << (random?1:0) << "\n";
 
-		int playlistLength = playlistManager->activeplaylist_get_item_count();
+		
+		t_size playlist = playlistManager->get_playing_playlist();
+		if(playlist == std::numeric_limits<t_size>::max())
+			playlist = playlistManager->get_active_playlist();
+		int playlistLength = playlistManager->playlist_get_item_count(playlist);
 		out << "playlistlength: " << playlistLength << "\n";
 
 		std::string state;
@@ -189,7 +193,7 @@ namespace foo_mpdsrv
 			state = "stop";
 		out << "state: " << state << "\n";
 
-		t_size playlist, item;
+		t_size item;
 		if(playlistManager->get_playing_item_location(&playlist, &item))
 			out << "song: " << item << "\n" << "songid: " << item << "\n";
 

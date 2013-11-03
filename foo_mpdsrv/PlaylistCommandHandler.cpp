@@ -6,10 +6,22 @@
 
 namespace foo_mpdsrv
 {
-	void HandlePlaylistinfo(MessageSender& caller, std::vector<std::string>&)
+	void HandlePlaylistinfo(MessageSender& caller, std::vector<std::string>& args)
 	{
 		static_api_ptr_t<playlist_manager> man;
-		caller.SendPlaylist(man->get_playing_playlist());
+		t_size playlist = man->get_playing_playlist();
+		if(playlist == std::numeric_limits<t_size>::max())
+			playlist = man->get_active_playlist();
+		if(args.size() >= 2)
+		{
+			long numpos = ConvertToLong(args[1].c_str());
+			metadb_handle_ptr songdata = man->playlist_get_item_handle(playlist, numpos);
+			caller.SendSongMetadata(songdata);
+		}
+		else
+		{
+			caller.SendPlaylist(playlist);
+		}
 	}
 
 	void HandlePlchanges(MessageSender& caller, std::vector<std::string>&)

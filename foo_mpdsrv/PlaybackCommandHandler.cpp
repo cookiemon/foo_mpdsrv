@@ -36,8 +36,11 @@ namespace foo_mpdsrv
 		{
 			if(LibraryConsistencyCheck::GetId(p_location) == searchedItem)
 			{
-				static_api_ptr_t<playlist_manager> api;
-				api->activeplaylist_execute_default_action(p_index);
+				static_api_ptr_t<playlist_manager> man;
+				t_size playlist = man->get_playing_playlist();
+				if(playlist == std::numeric_limits<t_size>::max())
+					playlist = man->get_active_playlist();
+				man->playlist_execute_default_action(playlist, p_index);
 				return false;
 			}
 			return true;
@@ -49,15 +52,15 @@ namespace foo_mpdsrv
 		long itemnr = -1;
 		if(args.size() >= 2)
 		{
-			char* end;
-			itemnr = strtol(args[1].c_str(), &end, 10);
-			if(*end != '\0')
-				throw CommandException(ACK_ERROR_ARG, "argument 1 not a number");
-			static_api_ptr_t<playlist_manager> playlist;
-			playlist->activeplaylist_execute_default_action(itemnr);
+			itemnr = ConvertToLong(args[1].c_str());
+			static_api_ptr_t<playlist_manager> man;
+			t_size playlist = man->get_playing_playlist();
+			if(playlist == std::numeric_limits<t_size>::max())
+				playlist = man->get_active_playlist();
+			man->playlist_execute_default_action(playlist, itemnr);
 			HandleItemsPlay handler;
 			handler.searchedItem = itemnr;
-			playlist->activeplaylist_enum_items(handler, bit_array_true());
+			man->playlist_enum_items(playlist, handler, bit_array_true());
 		}
 		if(itemnr == -1)
 		{
@@ -74,14 +77,14 @@ namespace foo_mpdsrv
 		long id = 0;
 		if(args.size() >= 2)
 		{
-			char* end;
-			id = strtol(args[1].c_str(), &end, 10);
-			if(*end != '\0')
-				throw CommandException(ACK_ERROR_ARG, "argument 1 not a number");
-			static_api_ptr_t<playlist_manager> playlist;
+			id = ConvertToLong(args[1].c_str());
+			static_api_ptr_t<playlist_manager> man;
 			HandleItemsPlay handler;
 			handler.searchedItem = id;
-			playlist->activeplaylist_enum_items(handler, bit_array_true());
+			t_size playlist = man->get_playing_playlist();
+			if(playlist == std::numeric_limits<t_size>::max())
+				playlist = man->get_active_playlist();
+			man->playlist_enum_items(playlist, handler, bit_array_true());
 		}
 		if(id == 0)
 		{
