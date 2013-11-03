@@ -9,21 +9,15 @@ namespace foo_mpdsrv
 	void HandlePlaylistinfo(MessageSender& caller, std::vector<std::string>&)
 	{
 		static_api_ptr_t<playlist_manager> man;
-		//caller.SendPlaylist(man->get_playing_playlist());
-		RequestFromMT req;
-		t_size pl;
-		req.RequestActivePlaylist(pl);
-		caller.SendPlaylist(pl);
+		caller.SendPlaylist(man->get_playing_playlist());
 	}
 
 	void HandlePlchanges(MessageSender& caller, std::vector<std::string>&)
 	{
-		RequestFromMT req;
-		//static_api_ptr_t<playlist_manager> man;
-		t_size playlist;
-		req.RequestPlayingPlaylist(playlist);
+		static_api_ptr_t<playlist_manager> man;
+		t_size playlist = man->get_playing_playlist();
 		if(playlist == std::numeric_limits<t_size>::max())
-			req.RequestActivePlaylist(playlist);
+			playlist = man->get_active_playlist();
 		caller.SendPlaylist(playlist);
 	}
 

@@ -97,10 +97,8 @@ namespace foo_mpdsrv
 	{
 		static_api_ptr_t<playlist_manager> man;
 		pfc::list_t<metadb_handle_ptr> items;
-		RequestFromMT requester;
-		requester.RequestPlaylistItems(playlist, items);
 
-		//man->playlist_get_all_items(playlist, items);
+		man->playlist_get_all_items(playlist, items);
 		t_size num = items.get_count();
 		for(t_size i = 0; i < num; ++i)
 		{
