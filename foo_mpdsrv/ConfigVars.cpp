@@ -14,5 +14,5 @@ namespace foo_mpdsrv
 	cfg_string g_LibraryRootPath(RootPathGUID, "");
 	cfg_string g_NetworkInterface(NetworkInterfaceGUID, "0.0.0.0");
 	cfg_string g_Port(PortGUID, g_DefaultPort);
-	cfg_int_t<idtype> g_MaxId(IdGUID, 0);
+	cfg_int_t<idtype> g_MaxId(IdGUID, 1);
 }

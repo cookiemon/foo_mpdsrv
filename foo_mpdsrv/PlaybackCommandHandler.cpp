@@ -1,5 +1,6 @@
 #include "PlaybackCommandHandler.h"
 #include "MessageSender.h"
+#include "LibraryConsistencyCheck.h"
 #include "common.h"
 #include <string>
 
@@ -27,9 +28,38 @@ namespace foo_mpdsrv
 		((api.get_ptr())->*func)(firstArg, secondArg);
 	}
 
+	class HandleItemsPlay : public playlist_manager::enum_items_callback
+	{
+	public:
+		idtype searchedItem;
+		virtual bool on_item(t_size p_index,const metadb_handle_ptr & p_location,bool b_selected)
+		{
+			if(LibraryConsistencyCheck::GetId(p_location) == searchedItem)
+			{
+				static_api_ptr_t<playlist_manager> api;
+				api->activeplaylist_execute_default_action(p_index);
+				return false;
+			}
+			return true;
+		}
+	};
+
 	void HandlePlay(MessageSender&, std::vector<std::string>& args)
 	{
-		if(args.size() < 2)
+		long itemnr = -1;
+		if(args.size() >= 2)
+		{
+			char* end;
+			itemnr = strtol(args[1].c_str(), &end, 10);
+			if(*end != '\0')
+				throw CommandException(ACK_ERROR_ARG, "argument 1 not a number");
+			static_api_ptr_t<playlist_manager> playlist;
+			playlist->activeplaylist_execute_default_action(itemnr);
+			HandleItemsPlay handler;
+			handler.searchedItem = itemnr;
+			playlist->activeplaylist_enum_items(handler, bit_array_true());
+		}
+		if(itemnr == -1)
 		{
 			static_api_ptr_t<playback_control> control;
 			if(control->is_paused())
@@ -37,15 +67,29 @@ namespace foo_mpdsrv
 			else
 				control->start();
 		}
-		else
+	}
+
+	void HandlePlayId(MessageSender&, std::vector<std::string>& args)
+	{
+		long id = 0;
+		if(args.size() >= 2)
 		{
-			long id;
 			char* end;
 			id = strtol(args[1].c_str(), &end, 10);
-			if(!*end)
+			if(*end != '\0')
 				throw CommandException(ACK_ERROR_ARG, "argument 1 not a number");
 			static_api_ptr_t<playlist_manager> playlist;
-			playlist->activeplaylist_execute_default_action(id);
+			HandleItemsPlay handler;
+			handler.searchedItem = id;
+			playlist->activeplaylist_enum_items(handler, bit_array_true());
+		}
+		if(id == 0)
+		{
+			static_api_ptr_t<playback_control> control;
+			if(control->is_paused())
+				control->pause(false);
+			else
+				control->start();
 		}
 	}
 

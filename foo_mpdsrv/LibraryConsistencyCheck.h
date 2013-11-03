@@ -54,6 +54,7 @@ namespace foo_mpdsrv
 			{
 				SetId(p_item, fi, g_MaxId);
 				g_MaxId = g_MaxId + 1;
+				return g_MaxId - 1;
 			}
 		}
 		static void SetId(idtype newId, metadb_handle_ptr p_item)

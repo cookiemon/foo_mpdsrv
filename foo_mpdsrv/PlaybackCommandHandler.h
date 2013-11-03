@@ -15,8 +15,9 @@ namespace foo_mpdsrv
 			Stop
 		};
 	}
-
+	
 	void HandlePlay(MessageSender&, std::vector<std::string>& args);
+	void HandlePlayId(MessageSender&, std::vector<std::string>& args);
 	void HandlePause(MessageSender&, std::vector<std::string>& args);
 	void HandlePlay(MessageSender&, std::vector<std::string>& args);
 	void HandleStop(MessageSender&, std::vector<std::string>& args);
