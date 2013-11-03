@@ -28,6 +28,7 @@ namespace foo_mpdsrv
 		_actions.insert(std::make_pair("ping", &HandlePing));
 		_actions.insert(std::make_pair("pause", &HandlePause));
 		_actions.insert(std::make_pair("play", &HandlePlay));
+		_actions.insert(std::make_pair("playid", &HandlePlayId));
 		_actions.insert(std::make_pair("stop", &HandleStop));
 		_actions.insert(std::make_pair("next", &HandleNext));
 		_actions.insert(std::make_pair("previous", &HandlePrevious));
