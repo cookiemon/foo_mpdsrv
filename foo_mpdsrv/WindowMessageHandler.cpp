@@ -20,7 +20,6 @@ namespace foo_mpdsrv
 					if(newClient.IsValid())
 					{
 						auto& newHandler = _handlers.insert(MessageHandlerStoragePair(newClient.GetId(), std::move(newClient)));
-						newHandler.first->second.StartThread();
 					}
 				}
 				break;

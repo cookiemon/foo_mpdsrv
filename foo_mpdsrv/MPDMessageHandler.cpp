@@ -19,7 +19,6 @@ namespace foo_mpdsrv
 		_run(right._run)
 	{
 		right._run = false;
-		right.AbortThread();
 		_accumulateList = right._accumulateList;
 		_list_OK = right._list_OK;
 	}
@@ -45,21 +44,17 @@ namespace foo_mpdsrv
 	MPDMessageHandler::~MPDMessageHandler()
 	{
 		_run = false;
-		Wake();
-		WaitTillThreadDone();
 	}
 	
 	void MPDMessageHandler::Shutdown()
 	{
 		_run = false;
-		Wake();
 	}
 
 	void MPDMessageHandler::PushBuffer(const char* buf, size_t numBytes)
 	{
 		_buffer.write(buf, numBytes);
-		Wake();
-		//HandleBuffer();
+		HandleBuffer();
 	}
 
 	void MPDMessageHandler::HandleBuffer()
@@ -98,6 +93,7 @@ namespace foo_mpdsrv
 				{
 					try
 					{
+						nextCommand.erase(nextCommand.find_last_not_of(" \r\n\t"));
 						ExecuteCommand(nextCommand);
 						_sender.SendOk();
 					}

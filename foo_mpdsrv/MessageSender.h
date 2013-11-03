@@ -2,13 +2,12 @@
 #define MESSAGESENDER_H
 
 #include "common.h"
-#include "SleepyThread.h"
 #include <set>
 
 namespace foo_mpdsrv
 {
 
-	class MessageSender : public SleepyThread
+	class MessageSender
 	{
 	private:
 		SOCKET _sock;

@@ -3,7 +3,6 @@
 
 #include "common.h"
 #include "MessageSender.h"
-#include "SleepyThread.h"
 #include <sstream>
 #include <vector>
 #include <functional>
@@ -13,7 +12,7 @@
 namespace foo_mpdsrv
 {
 
-	class MPDMessageHandler : public SleepyThread
+	class MPDMessageHandler
 	{
 	private:
 		MessageSender _sender;
