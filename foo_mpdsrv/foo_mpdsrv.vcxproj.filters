@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\ProtocolHandlers">
+      <UniqueIdentifier>{a039f945-8258-4c6e-b01c-30bbe753d6c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -30,19 +33,7 @@
     <ClInclude Include="MPDMessageHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PlaybackCommandHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MessageSender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlaylistCommandHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneralCommandHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DataRequestHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CommandException.h">
@@ -60,9 +51,6 @@
     <ClInclude Include="NetworkInformation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DataBaseHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LibraryConsistencyCheck.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,6 +58,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RequestFromMT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaybackCommands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataRequestHandler.h">
+      <Filter>Header Files\ProtocolHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataBaseHandler.h">
+      <Filter>Header Files\ProtocolHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneralCommandHandler.h">
+      <Filter>Header Files\ProtocolHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaybackCommandHandler.h">
+      <Filter>Header Files\ProtocolHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaylistCommandHandler.h">
+      <Filter>Header Files\ProtocolHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -114,6 +123,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SleepyThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaybackCommands.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

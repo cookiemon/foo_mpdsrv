@@ -3,6 +3,7 @@
 #include "WindowMessageHandler.h"
 #include <cstdio>
 #include <iostream>
+#include <string>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 
@@ -14,8 +15,13 @@ inline void popupNetworkError(const char* message, int errorNum = -1)
 	//console::formatter form;
 	//form << message << " (" << errorNum << ", " << gai_strerrorA(errorNum) << ")";
 	//popup_message::g_show(form, PLUGINNAME, popup_message::icon_error);
-	std::ofstream err("C:\\logs\\foo_mpd.err", std::fstream::app);
-	err << message << " (" << errorNum << ", " << gai_strerrorA(errorNum) << ")" << std::endl;
+	foo_mpdsrv::Logger log(foo_mpdsrv::Logger::SEVERE);
+	log.Log(message);
+	log.Log(" (");
+	log.Log(errorNum);
+	log.Log(", ");
+	log.Log(gai_strerrorA(errorNum));
+	log.Log(")\n");
 }
 
 namespace foo_mpdsrv

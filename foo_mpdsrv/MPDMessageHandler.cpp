@@ -23,7 +23,7 @@ namespace foo_mpdsrv
 		_list_OK = right._list_OK;
 	}
 
-	MPDMessageHandler::MPDMessageHandler(SOCKET connection) : _accumulateList(false), _list_OK(false), _sender(connection)
+	MPDMessageHandler::MPDMessageHandler(SOCKET connection) : _accumulateList(false), _list_OK(false), _sender(connection), _run(true)
 	{
 		_actions.insert(std::make_pair("ping", &HandlePing));
 		_actions.insert(std::make_pair("pause", &HandlePause));
@@ -45,24 +45,39 @@ namespace foo_mpdsrv
 	MPDMessageHandler::~MPDMessageHandler()
 	{
 		_run = false;
+#ifdef FOO_MPDSRV_THREADED
+		Wake();
+		WaitTillThreadDone();
+#endif
 	}
 	
 	void MPDMessageHandler::Shutdown()
 	{
 		_run = false;
+#ifdef FOO_MPDSRV_THREADED
+		Wake();
+#endif
 	}
 
 	void MPDMessageHandler::PushBuffer(const char* buf, size_t numBytes)
 	{
 		_buffer.write(buf, numBytes);
+#ifdef FOO_MPDSRV_THREADED
+		Wake();
+#else
 		HandleBuffer();
+#endif
 	}
 
 	void MPDMessageHandler::HandleBuffer()
 	{
+		Logger log(Logger::FINEST);
+		log.Log("==>Handling Buffer\n");
 		std::string nextCommand;
 		std::getline(_buffer, nextCommand);
-
+		log.Log("==>Next Command: ");
+		log.Log(nextCommand);
+		log.Log("\n");
 		if(!_lastIncomplete.empty())
 		{
 			nextCommand = _lastIncomplete + nextCommand;
@@ -70,14 +85,12 @@ namespace foo_mpdsrv
 		}
 		while(_buffer.good())
 		{
-#ifdef _DEBUG
 			{
-				std::ofstream log;
-				log.open("C:\\logs\\foo_mpd.log", std::ofstream::out | std::ofstream::app);
-				log << "I: " << nextCommand << std::endl;
-				log.close();
+				Logger log(Logger::DBG);
+				log.Log("I: ");
+				log.Log(nextCommand);
+				log.Log("\n");
 			}
-#endif
 			if(!_accumulateList)
 			{
 				if(strstartswithi(nextCommand, "command_list_begin"))
@@ -94,7 +107,9 @@ namespace foo_mpdsrv
 				{
 					try
 					{
-						nextCommand.erase(nextCommand.find_last_not_of(" \r\n\t"));
+						size_t lastSpace = nextCommand.find_last_not_of(" \r\n\t");
+						if(lastSpace != std::string::npos)
+							nextCommand.erase(lastSpace+1);
 						ExecuteCommand(nextCommand);
 						_sender.SendOk();
 					}
@@ -115,6 +130,16 @@ namespace foo_mpdsrv
 			}
 			std::getline(_buffer, nextCommand);
 		}
+#ifdef _DEBUG
+			{
+				Logger log(Logger::DBG);
+				log.Log("Bufferstate: ");
+				log.Log(_buffer.good()?"Good":"");
+				log.Log(_buffer.bad()?"Bad":"");
+				log.Log(_buffer.fail()?"Fail":"");
+				log.Log(_buffer.eof()?"EOF":"");
+			}
+#endif
 		_lastIncomplete = nextCommand;
 		_buffer.str("");
 		_buffer.seekg(nextCommand.size());
@@ -123,6 +148,11 @@ namespace foo_mpdsrv
 
 	bool MPDMessageHandler::WakeProc(abort_callback &abort)
 	{
+		Logger log(Logger::FINEST);
+		log.Log("==>Message Handler woke up\n");
+		log.Log("Status of run: ");
+		log.Log(_run);
+		log.Log("\n");
 		if(_run)
 		{
 			HandleBuffer();
@@ -143,10 +173,10 @@ namespace foo_mpdsrv
 #ifdef _DEBUG
 			popup_message::g_show(message.c_str(), "Could not process");
 			{
-				std::ofstream log;
-				log.open("C:\\logs\\foo_mpd.log", std::ofstream::out | std::ofstream::app);
-				log << "Command not found: " << message << std::endl;
-				log.close();
+				Logger log(Logger::WARN);
+				log.Log("Command not found: ");
+				log.Log(message);
+				log.Log("\n");
 			}
 #endif
 		}

@@ -3,6 +3,7 @@
 #include "ConfigVars.h"
 #include "RequestFromMT.h"
 #include "LibraryConsistencyCheck.h"
+#include "Logger.h"
 #include <sstream>
 #include <unordered_map>
 
@@ -14,8 +15,13 @@ inline void popupNetworkError(const char* message, int errorNum = -1)
 	//console::formatter form;
 	//form << message << " (" << errorNum << ", " << gai_strerrorA(errorNum) << ")";
 	//popup_message::g_show(form, PLUGINNAME, popup_message::icon_error);
-	std::ofstream err("C:\\logs\\foo_mpd.err");
-	err << message << " (" << errorNum << ", " << gai_strerrorA(errorNum) << ")" << std::endl;
+	foo_mpdsrv::Logger log(foo_mpdsrv::Logger::SEVERE);
+	log.Log(message);
+	log.Log(" (");
+	log.Log(errorNum);
+	log.Log(", ");
+	log.Log(gai_strerrorA(errorNum));
+	log.Log(")\n");
 }
 
 namespace foo_mpdsrv
@@ -60,7 +66,6 @@ namespace foo_mpdsrv
 			out << "file: " << path.get_ptr() << "\n";
 		}
 		
-		//t_filestats stats = song->get_filestats();
 		file_info_const_impl fi;
 		if(song->get_info(fi))
 		{
@@ -85,9 +90,12 @@ namespace foo_mpdsrv
 			for(t_size i = 0; i < numInfo; ++i)
 			{
 				pfc::string8 key = TranslateMetadata(fi.info_enum_name(i));
-				pfc::string8 value = fi.info_enum_value(i);
-				value.replace_nontext_chars(' ');
-				out << key.get_ptr() << ": " << value << "\n";
+				if(key != "")
+				{
+					pfc::string8 value = fi.info_enum_value(i);
+					value.replace_nontext_chars(' ');
+					out << key.get_ptr() << ": " << value << "\n";
+				}
 			}
 		}
 		SendAnswer(out.str());
@@ -97,8 +105,8 @@ namespace foo_mpdsrv
 	{
 		static_api_ptr_t<playlist_manager> man;
 		pfc::list_t<metadb_handle_ptr> items;
-
-		man->playlist_get_all_items(playlist, items);
+		RequestFromMT req;
+		req.RequestPlaylistItems(playlist, items);
 		t_size num = items.get_count();
 		for(t_size i = 0; i < num; ++i)
 		{
@@ -127,9 +135,9 @@ namespace foo_mpdsrv
 
 	void MessageSender::SendPlaylistPath(size_t idx)
 	{
-		static_api_ptr_t<playlist_manager> plman;
 		pfc::string8 name;
-		plman->playlist_get_name(idx, name);
+		RequestFromMT req;
+		req.RequestPlaylistName(idx, name);
 		pfc::string8 msg("playlist: ");
 		msg.add_string(name);
 		msg.add_char('\n');
@@ -152,10 +160,17 @@ namespace foo_mpdsrv
 		playlist: (31-bit unsigned integer, the playlist version number)
 		*/
 		std::stringstream out;
-		static_api_ptr_t<playback_control> playback;
-		static_api_ptr_t<playlist_manager> playlistManager;
+		RequestFromMT req;
+		bool isPlaying;
+		bool isPaused;
+		bool itemResult;
 		metadb_handle_ptr playing;
-		if(playback->get_now_playing(playing))
+		float volume;
+		double length;
+		double position;
+		req.RequestPlaybackInfo(isPlaying, isPaused, itemResult, playing, position, length, volume);
+
+		if(itemResult)
 		{
 			file_info_impl fileinfo;
 			if(playing->get_info(fileinfo))
@@ -163,10 +178,10 @@ namespace foo_mpdsrv
 				out << "bitrate: " << fileinfo.info_get_bitrate() << "\n";
 			}
 		}
+		static_api_ptr_t<playlist_manager> playlistManager;
 
-		int volume = static_cast<int>(playback->get_volume());
 		volume += 100;
-		out << "volume: " << volume << "\n";
+		out << "volume: " << static_cast<int>(volume) << "\n";
 
 		size_t active = playlistManager->playback_order_get_active();
 		const std::string curOrder(playlistManager->playback_order_get_name(active));
@@ -185,9 +200,9 @@ namespace foo_mpdsrv
 		out << "playlistlength: " << playlistLength << "\n";
 
 		std::string state;
-		if(playback->is_playing())
+		if(isPlaying)
 			state = "play";
-		else if(playback->is_paused())
+		else if(isPaused)
 			state = "pause";
 		else
 			state = "stop";
@@ -197,8 +212,8 @@ namespace foo_mpdsrv
 		if(playlistManager->get_playing_item_location(&playlist, &item))
 			out << "song: " << item << "\n" << "songid: " << item << "\n";
 
-		out << "time: " << static_cast<int>(playback->playback_get_position())
-			<< ":" << static_cast<int>(playback->playback_get_length()) << "\n";
+		out << "time: " << static_cast<int>(position)
+			<< ":" << static_cast<int>(length) << "\n";
 
 		out << "playlist: 0\n";
 		SendAnswer(out.str());
@@ -222,7 +237,7 @@ namespace foo_mpdsrv
 	
 	void MessageSender::SendOutputs()
 	{
-		SendAnswer("outputid: 0\noutputname: foobar\noutputenabled: 1\nOK\n");
+		SendAnswer("outputid: 0\noutputname: foobar\noutputenabled: 1\n");
 	}
 
 	void MessageSender::SendOk()
@@ -257,10 +272,9 @@ namespace foo_mpdsrv
 	{
 		int numBytes = message.get_length();
 #ifdef _DEBUG
-		std::ofstream log;
-		log.open("C:\\logs\\foo_mpd.log", std::ofstream::out | std::ofstream::app);
-		log << "O: " << message << std::endl;
-		log.close();
+		Logger log(Logger::DBG);
+		log.Log("O: ");
+		log.Log(message);
 #endif
 		return SendBytes(message.get_ptr(), numBytes);
 	}
@@ -301,12 +315,9 @@ namespace foo_mpdsrv
 
 #ifdef _DEBUG
 			{
-				std::ofstream log;
-				log.open("C:\\logs\\foo_mpd.log", std::ofstream::out | std::ofstream::app);
-				log << "O: ";
-				log.write(buf, numBytes);
-				log.flush();
-				log.close();
+				Logger log(Logger::DBG);
+				log.Log("O: ");
+				log.Write(buf, numBytes);
 			}
 #endif
 		return true;

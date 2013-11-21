@@ -1,5 +1,6 @@
 #include "WindowMessageHandler.h"
 #include "common.h"
+#include "..\..\foobar2kSDK\pfc\string.h"
 
 namespace foo_mpdsrv
 {
@@ -20,6 +21,20 @@ namespace foo_mpdsrv
 					if(newClient.IsValid())
 					{
 						auto& newHandler = _handlers.insert(MessageHandlerStoragePair(newClient.GetId(), std::move(newClient)));
+#ifdef FOO_MPDSRV_THREADED
+						newHandler.first->second.StartThread();
+						Logger log(Logger::FINEST);
+						SOCKET sock = newHandler.first->second.GetId();
+						bool isValid = newHandler.first->second.IsValid();
+						bool isActive = newHandler.first->second.IsThreadActive();
+						log.Log("Started thread for Socket ");
+						log.Log(sock);
+						log.Log("(Valid: ");
+						log.Log(isValid);
+						log.Log(",Active:");
+						log.Log(isActive);
+						log.Log(")\n");
+#endif
 					}
 				}
 				break;

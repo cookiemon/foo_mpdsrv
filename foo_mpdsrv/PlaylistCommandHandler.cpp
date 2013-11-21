@@ -1,4 +1,5 @@
 #include "PlaylistCommandHandler.h"
+#include "PlaybackCommands.h"
 #include "common.h"
 #include "MessageSender.h"
 #include <limits>
@@ -8,19 +9,17 @@ namespace foo_mpdsrv
 {
 	void HandlePlaylistinfo(MessageSender& caller, std::vector<std::string>& args)
 	{
+		PlaylistSelector pl = DefaultPlaylistSelector();
 		static_api_ptr_t<playlist_manager> man;
-		t_size playlist = man->get_playing_playlist();
-		if(playlist == std::numeric_limits<t_size>::max())
-			playlist = man->get_active_playlist();
 		if(args.size() >= 2)
 		{
-			long numpos = ConvertToLong(args[1].c_str());
-			metadb_handle_ptr songdata = man->playlist_get_item_handle(playlist, numpos);
+			SongSelector song = SongNumSelector(args[1].c_str());
+			metadb_handle_ptr songdata = man->playlist_get_item_handle(pl.GetPlaylistNum(), song.GetSongNum());
 			caller.SendSongMetadata(songdata);
 		}
 		else
 		{
-			caller.SendPlaylist(playlist);
+			caller.SendPlaylist(pl.GetPlaylistNum());
 		}
 	}
 
@@ -38,17 +37,7 @@ namespace foo_mpdsrv
 		if(args.size() < 2)
 			throw CommandException(ACK_ERROR_ARG, "not enough arguments");
 
-		static_api_ptr_t<playlist_manager> man;
-		t_size num = man->get_playlist_count();
-		for(t_size i = 0; i < num; ++i)
-		{
-			pfc::string8 name;
-			man->playlist_get_name(i, name);
-			if(args[0] == name.get_ptr())
-			{
-				caller.SendPlaylist(i);
-				return;
-			}
-		}
+		PlaylistSelector pl = PlaylistNameSelector(args[1]);
+		caller.SendPlaylist(pl.GetPlaylistNum());
 	}
 }

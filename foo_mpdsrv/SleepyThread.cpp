@@ -24,10 +24,24 @@ namespace foo_mpdsrv
 	{
 		while(true)
 		{
-			_event.wait_for(-1);
-			p_abort.check();
-			if(!WakeProc(p_abort))
-				return 0;
+			if(_event.wait_for(2))
+			{
+				p_abort.check();
+				Logger log(Logger::FINEST);
+				log.Log("=> Thread do work now\n");
+				bool foo = WakeProc(p_abort);
+				if(!foo)
+				//if(!WakeProc(p_abort))
+					return 0;
+			}
+			else
+			{
+				Logger log(Logger::FINEST);
+				HANDLE evt = _event.get();
+				log.Log("=> Event ");
+				log.Log(evt);
+				log.Log(" Timeout\n");
+			}
 		}
 	}
 }

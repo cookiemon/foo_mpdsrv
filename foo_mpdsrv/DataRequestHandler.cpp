@@ -1,4 +1,5 @@
 #include "DataRequestHandler.h"
+#include "RequestFromMT.h"
 #include "common.h"
 
 namespace foo_mpdsrv
@@ -21,10 +22,9 @@ namespace foo_mpdsrv
 
 	void HandleCurrentsong(MessageSender& caller, std::vector<std::string>&)
 	{
-		static_api_ptr_t<playback_control> playback;
-
 		metadb_handle_ptr playing;
-		if(playback->get_now_playing(playing))
+		RequestFromMT req;
+		if(req.RequestNowPlaying(playing))
 		{
 			caller.SendSongMetadata(playing);
 		}
@@ -50,9 +50,9 @@ namespace foo_mpdsrv
 		pfc::string8 path = args[1].c_str();
 		NormalizePath(path);
 
-		static_api_ptr_t<library_manager> lib;
 		pfc::list_t<metadb_handle_ptr> out;
-		lib->get_all_items(out);
+		RequestFromMT req;
+		req.RequestLibraryItems(out);
 		SortByFolder tmp;
 		out.sort(tmp);
 		FilterListByPath(out, path);
@@ -63,7 +63,7 @@ namespace foo_mpdsrv
 		t_size i = 0;
 
 		t_size pathLength = path.length();
-		while(i < libSize && lib->get_relative_path(out[i], currentFolder))
+		while(i < libSize && req.RequestRelativePath(out[i], currentFolder))
 		{
 			currentFolder.remove_chars(0, pathLength);
 			t_size slashIdx = currentFolder.find_first('\\');
@@ -83,7 +83,8 @@ namespace foo_mpdsrv
 		if(path.is_empty())
 		{
 			static_api_ptr_t<playlist_manager> plman;
-			t_size plcount = plman->get_playlist_count();
+			t_size plcount;
+			req.RequestPlaylistCount(plcount);
 			for(t_size i = 0; i < plcount; ++i)
 				caller.SendPlaylistPath(i);
 		}

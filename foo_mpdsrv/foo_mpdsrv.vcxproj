@@ -54,10 +54,11 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;FOO_MPDSRV_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;FOO_MPDSRV_EXPORTS;FOO_MPDSRV_THREADED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ShowIncludes>false</ShowIncludes>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -72,9 +73,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;FOO_MPDSRV_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;FOO_MPDSRV_EXPORTS;FOO_MPDSRV_THREADED;FOO_MPDSRV_DISABLE_LOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -94,10 +96,12 @@
     <ClInclude Include="DataRequestHandler.h" />
     <ClInclude Include="GeneralCommandHandler.h" />
     <ClInclude Include="LibraryConsistencyCheck.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="MessageSender.h" />
     <ClInclude Include="MPDMessageHandler.h" />
     <ClInclude Include="NetworkInformation.h" />
     <ClInclude Include="PlaybackCommandHandler.h" />
+    <ClInclude Include="PlaybackCommands.h" />
     <ClInclude Include="PlaylistCommandHandler.h" />
     <ClInclude Include="RequestFromMT.h" />
     <ClInclude Include="resource.h" />
@@ -124,6 +128,7 @@
     <ClCompile Include="MPDMessageHandler.cpp" />
     <ClCompile Include="NetworkInformation.cpp" />
     <ClCompile Include="PlaybackCommandHandler.cpp" />
+    <ClCompile Include="PlaybackCommands.cpp" />
     <ClCompile Include="PlaylistCommandHandler.cpp" />
     <ClCompile Include="SleepyThread.cpp" />
     <ClCompile Include="WindowMessageHandler.cpp" />

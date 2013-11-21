@@ -16,7 +16,40 @@ namespace foo_mpdsrv
 		{
 			_event.create(false, false);
 		}
-
+		void RequestLibraryItems(pfc::list_base_t<metadb_handle_ptr>& out)
+		{
+			DoCallback([&]()
+			{
+				static_api_ptr_t<library_manager> inst;
+				inst->get_all_items(out);
+			});
+		}
+		bool RequestRelativePath(const metadb_handle_ptr item, pfc::string_base& out)
+		{
+			bool retVal;
+			DoCallback([&]()
+			{
+				static_api_ptr_t<library_manager> inst;
+				retVal = inst->get_relative_path(item, out);
+			});
+			return retVal;
+		}
+		void RequestPlaylistCount(t_size& plCount)
+		{
+			DoCallback([&]()
+			{
+				static_api_ptr_t<playlist_manager> inst;
+				plCount = inst->get_playlist_count();
+			});
+		}
+		void RequestPlaylistName(t_size plId, pfc::string_base& name)
+		{
+			DoCallback([&]()
+			{
+				static_api_ptr_t<playlist_manager> inst;
+				inst->playlist_get_name(plId, name);
+			});
+		}
 		void RequestPlaylistItems(t_size pl, pfc::list_base_t<metadb_handle_ptr>& out)
 		{
 			DoCallback([&]()
@@ -36,21 +69,60 @@ namespace foo_mpdsrv
 		void RequestPlayingPlaylist(t_size& pl)
 		{
 			DoCallback([&]()
-			{
+				{
 				static_api_ptr_t<playlist_manager> inst;
 				pl = inst->get_playing_playlist();
 			});
 		}
-	private:
+		void RequestPlaybackInfo(bool& isPlaying,
+			bool& isPaused,
+			bool& itemResult,
+			metadb_handle_ptr& playingItem,
+			double& position,
+			double& length,
+			float& volume
+			)
+		{
+			DoCallback([&](){
+				static_api_ptr_t<playback_control> playback;
+				itemResult = playback->get_now_playing(playingItem);
+				isPlaying = playback->is_playing();
+				isPaused = playback->is_paused();
+				volume = playback->get_volume();
+				position = playback->playback_get_position();
+				length = playback->playback_get_length();
+			});
+		}
+		bool RequestNowPlaying(metadb_handle_ptr& playing)
+		{
+			bool isPlaying;
+			DoCallback([&](){
+				static_api_ptr_t<playback_control> playback;
+				isPlaying = playback->get_now_playing(playing);
+			});
+			return isPlaying;
+		}
+		void RequestVolume(float& volume)
+		{
+			DoCallback([&](){
+				static_api_ptr_t<playback_control> playback;
+				volume = playback->get_volume();
+			});
+		}
 		template<typename T>
 		void DoCallback(T& func)
 		{
+#ifdef FOO_MPDSRV_THREADED
 			service_ptr_t<InternalCallback<T> > caller(new InternalCallback<T>(_event.get(), func));
 			static_api_ptr_t<main_thread_callback_manager> mtfac;
 			mtfac->add_callback(caller);
 			_event.wait_for(-1);
+#else
+			func();
+#endif
 		}
 
+	private:
 		template<typename T>
 		struct InternalCallback : public main_thread_callback
 		{
