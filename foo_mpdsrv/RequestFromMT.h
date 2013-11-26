@@ -72,6 +72,8 @@ namespace foo_mpdsrv
 				{
 				static_api_ptr_t<playlist_manager> inst;
 				pl = inst->get_playing_playlist();
+				if(pl == std::numeric_limits<t_size>::max())
+					pl = inst->get_active_playlist();
 			});
 		}
 		void RequestPlaybackInfo(bool& isPlaying,

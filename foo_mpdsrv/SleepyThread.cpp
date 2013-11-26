@@ -24,7 +24,7 @@ namespace foo_mpdsrv
 	{
 		while(true)
 		{
-			if(_event.wait_for(2))
+			if(_event.wait_for(INFINITE))
 			{
 				p_abort.check();
 				Logger log(Logger::FINEST);

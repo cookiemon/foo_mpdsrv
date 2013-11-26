@@ -138,6 +138,7 @@ namespace foo_mpdsrv
 				log.Log(_buffer.bad()?"Bad":"");
 				log.Log(_buffer.fail()?"Fail":"");
 				log.Log(_buffer.eof()?"EOF":"");
+				log.Log("\n");
 			}
 #endif
 		_lastIncomplete = nextCommand;

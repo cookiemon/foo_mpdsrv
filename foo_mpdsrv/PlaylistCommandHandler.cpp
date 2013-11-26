@@ -25,10 +25,9 @@ namespace foo_mpdsrv
 
 	void HandlePlchanges(MessageSender& caller, std::vector<std::string>&)
 	{
-		static_api_ptr_t<playlist_manager> man;
-		t_size playlist = man->get_playing_playlist();
-		if(playlist == std::numeric_limits<t_size>::max())
-			playlist = man->get_active_playlist();
+		t_size playlist;
+		RequestFromMT mtreq;
+		mtreq.RequestPlayingPlaylist(playlist);
 		caller.SendPlaylist(playlist);
 	}
 
