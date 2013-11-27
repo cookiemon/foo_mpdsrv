@@ -59,7 +59,7 @@ namespace foo_mpdsrv
 		hints.ai_socktype = SOCK_STREAM; // TCP Socket
 		hints.ai_flags = AI_PASSIVE; // Bind to local address
 
-		_lastError = getaddrinfo("0.0.0.0", port.get_ptr(), &hints, &_addressinfo);
+		_lastError = getaddrinfo(addr.get_ptr(), port.get_ptr(), &hints, &_addressinfo);
 		if(_lastError != ERROR_SUCCESS)
 		{
 			popupNetworkError("Could not retrieve address information", _lastError);

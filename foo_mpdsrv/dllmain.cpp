@@ -23,6 +23,7 @@ namespace foo_mpdsrv
 		{
 			listener.reset(new ConnectionListener());
 			listener->StartListening(g_NetworkInterface, g_Port);
+			//listener->StartListening("192.168.56.1", "6600");
 		}
 	};
 

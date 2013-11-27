@@ -32,6 +32,8 @@ namespace foo_mpdsrv
 		void SendListOk();
 		void SendError(unsigned int line, const std::string& cmd, const CommandException& err);
 
+		void CloseConnection();
+
 		bool IsValid() { return _sock != SOCKET_ERROR; }
 		SOCKET GetId() { return _sock; }
 

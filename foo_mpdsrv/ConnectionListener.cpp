@@ -12,9 +12,6 @@ inline void popupNetworkError(const char* message, int errorNum = -1)
 {
 	if(errorNum == -1)
 		errorNum = WSAGetLastError();
-	//console::formatter form;
-	//form << message << " (" << errorNum << ", " << gai_strerrorA(errorNum) << ")";
-	//popup_message::g_show(form, PLUGINNAME, popup_message::icon_error);
 	foo_mpdsrv::Logger log(foo_mpdsrv::Logger::SEVERE);
 	log.Log(message);
 	log.Log(" (");
@@ -43,9 +40,15 @@ namespace foo_mpdsrv
 		{
 			if(i->ai_family == PF_INET || i->ai_family == PF_INET6)
 			{
+				Logger log(Logger::DBG);
+				log.Log("Binding interface: ");
+				log.Log(addr);
+				log.Log("\n");
 				SOCKET fd = BindSocket(i);
 				if(fd != SOCKET_ERROR)
 					_socketfds.push_back(fd);
+				else
+					log.Log("Bind failed\n");
 			}
 		}
 		if(_socketfds.empty())

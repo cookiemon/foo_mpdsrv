@@ -78,7 +78,10 @@ namespace foo_mpdsrv
 		SongSelector song;
 		if(args.size() >= 2)
 		{
-			song = SongIdSelector(args[1], pl.GetPlaylistNum());
+			RequestFromMT reqmt;
+			reqmt.DoCallback([&](){
+				song = SongIdSelector(args[1], pl.GetPlaylistNum());
+			});
 		}
 		PlayItem(pl, song);
 	}

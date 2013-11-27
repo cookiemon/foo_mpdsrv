@@ -112,8 +112,8 @@ namespace foo_mpdsrv
 		{
 			SendSongMetadata(items[i]);
 			std::stringstream str;
-			str << "Pos: " << i << "\n";
 			str << "Id: " << LibraryConsistencyCheck::GetId(items[i]) << "\n";
+			str << "Pos: " << i << "\n";
 			SendAnswer(str.str());
 		}
 	}
@@ -248,6 +248,11 @@ namespace foo_mpdsrv
 	void MessageSender::SendListOk()
 	{
 		SendAnswer("list_OK\n");
+	}
+
+	void MessageSender::CloseConnection()
+	{
+		closesocket(_sock);
 	}
 
 	void MessageSender::SendError(unsigned int line, const std::string& command, const CommandException& err)

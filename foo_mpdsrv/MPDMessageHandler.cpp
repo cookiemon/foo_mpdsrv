@@ -40,6 +40,7 @@ namespace foo_mpdsrv
 		_actions.insert(std::make_pair("status", &HandleStatus));
 		_actions.insert(std::make_pair("stats", &HandleStats));
 		_actions.insert(std::make_pair("outputs", &HandleOutputs));
+		_actions.insert(std::make_pair("close", &HandleClose));
 	}
 
 	MPDMessageHandler::~MPDMessageHandler()
