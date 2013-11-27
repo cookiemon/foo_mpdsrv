@@ -15,6 +15,7 @@ namespace foo_mpdsrv
 #endif
 	public:
 		static const unsigned int FINEST = 1;
+		static const unsigned int FINER = 5;
 		static const unsigned int DBG = 10;
 		static const unsigned int WARN = 50;
 		static const unsigned int SEVERE = 100;
@@ -41,7 +42,7 @@ namespace foo_mpdsrv
 
 		explicit Logger(unsigned int logLvl)
 #ifndef FOO_MPDSRV_DISABLE_LOG
-			: _logLvl(_logLvl), _str("C:\\logs\\foo_mpd.log", std::fstream::app)
+			: _logLvl(logLvl), _str("C:\\logs\\foo_mpd.log", std::fstream::app)
 #endif
 		{
 			/* Nothing */

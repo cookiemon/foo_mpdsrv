@@ -192,11 +192,10 @@ namespace foo_mpdsrv
 		out << "repeat: " << (repeat?1:0) << "\n";
 		out << "random: " << (random?1:0) << "\n";
 
-		
-		t_size playlist = playlistManager->get_playing_playlist();
-		if(playlist == std::numeric_limits<t_size>::max())
-			playlist = playlistManager->get_active_playlist();
-		int playlistLength = playlistManager->playlist_get_item_count(playlist);
+
+		t_size playlist;
+		req.RequestPlayingPlaylist(playlist);
+		int playlistLength = req.RequestPlaylistItemCount(playlist);
 		out << "playlistlength: " << playlistLength << "\n";
 
 		std::string state;
@@ -209,7 +208,7 @@ namespace foo_mpdsrv
 		out << "state: " << state << "\n";
 
 		t_size item;
-		if(playlistManager->get_playing_item_location(&playlist, &item))
+		if(req.RequestPlayingItemLocation(&playlist, &item))
 			out << "song: " << item << "\n" << "songid: " << item << "\n";
 
 		out << "time: " << static_cast<int>(position)
@@ -276,11 +275,6 @@ namespace foo_mpdsrv
 	bool MessageSender::SendAnswer(const pfc::string8& message)
 	{
 		int numBytes = message.get_length();
-#ifdef _DEBUG
-		Logger log(Logger::DBG);
-		log.Log("O: ");
-		log.Log(message);
-#endif
 		return SendBytes(message.get_ptr(), numBytes);
 	}
 
@@ -320,7 +314,7 @@ namespace foo_mpdsrv
 
 #ifdef _DEBUG
 			{
-				Logger log(Logger::DBG);
+				Logger log(Logger::FINER);
 				log.Log("O: ");
 				log.Write(buf, numBytes);
 			}

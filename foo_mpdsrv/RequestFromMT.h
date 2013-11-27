@@ -58,6 +58,16 @@ namespace foo_mpdsrv
 				inst->playlist_get_all_items(pl, out);
 			});
 		}
+		t_size RequestPlaylistItemCount(t_size playlist)
+		{
+			t_size retVal;
+			DoCallback([&]()
+			{
+				static_api_ptr_t<playlist_manager> inst;
+				retVal = inst->playlist_get_item_count(playlist);
+			});
+			return retVal;
+		}
 		void RequestActivePlaylist(t_size& pl)
 		{
 			DoCallback([&]()
@@ -110,6 +120,15 @@ namespace foo_mpdsrv
 				static_api_ptr_t<playback_control> playback;
 				volume = playback->get_volume();
 			});
+		}
+		bool RequestPlayingItemLocation(t_size* playlist, t_size* item)
+		{
+			bool retVal;
+			DoCallback([&](){
+				static_api_ptr_t<playlist_manager> plman;
+				retVal = plman->get_playing_item_location(playlist, item);
+			});
+			return retVal;
 		}
 		template<typename T>
 		void DoCallback(T& func)

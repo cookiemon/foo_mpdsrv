@@ -67,9 +67,9 @@ namespace foo_mpdsrv
 		{
 			currentFolder.remove_chars(0, pathLength);
 			t_size slashIdx = currentFolder.find_first('\\');
-			if(slashIdx != ~t_size(0))
+			if(slashIdx != std::numeric_limits<t_size>::max())
 			{
-				currentFolder.remove_chars(slashIdx, currentFolder.length() - slashIdx - 1);
+				currentFolder.remove_chars(slashIdx, currentFolder.length() - slashIdx);
 				currentFolder.add_char('/');
 			}
 			if(currentFolder != lastFolder)
