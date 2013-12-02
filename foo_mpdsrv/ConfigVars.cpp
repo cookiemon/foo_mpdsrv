@@ -15,4 +15,8 @@ namespace foo_mpdsrv
 	cfg_string g_NetworkInterface(NetworkInterfaceGUID, "0.0.0.0");
 	cfg_string g_Port(PortGUID, g_DefaultPort);
 	cfg_int_t<idtype> g_MaxId(IdGUID, 1);
+
+	const char* const g_DefaultPort = "6600";	
+	const char* const g_IdString = "MPDID";
+	const char* const g_MPDGreeting = "OK MPD 0.12.2\n";
 }
