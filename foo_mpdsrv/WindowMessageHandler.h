@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "MPDMessageHandler.h"
+#include "ThreadedEraseMap.h"
 #include <map>
 
 namespace foo_mpdsrv
@@ -14,7 +15,11 @@ namespace foo_mpdsrv
 		static const int HandledMessage = WM_USER + 1;
 
 	private:
+#ifdef FOO_MPDSRV_THREADED
+		typedef ThreadedEraseMap<SOCKET, MPDMessageHandler> MessageHandlerStorage;
+#else
 		typedef std::map<SOCKET, MPDMessageHandler> MessageHandlerStorage;
+#endif
 		typedef std::pair<SOCKET, MPDMessageHandler> MessageHandlerStoragePair;
 		char _buffer[256];
 		MessageHandlerStorage _handlers;

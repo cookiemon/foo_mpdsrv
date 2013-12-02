@@ -94,6 +94,7 @@
     <ClInclude Include="ConnectionListener.h" />
     <ClInclude Include="DataBaseHandler.h" />
     <ClInclude Include="DataRequestHandler.h" />
+    <ClInclude Include="ThreadedEraseMap.h" />
     <ClInclude Include="GeneralCommandHandler.h" />
     <ClInclude Include="LibraryConsistencyCheck.h" />
     <ClInclude Include="Logger.h" />
