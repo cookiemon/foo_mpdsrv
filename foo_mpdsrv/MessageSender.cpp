@@ -31,7 +31,7 @@ namespace foo_mpdsrv
 		_sock = accept(connection, NULL, NULL);
 		if(IsValid())
 		{
-			SendAnswer("OK MPD 0.12.2\n");
+			SendAnswer(g_MPDGreeting);
 		}
 	}
 
@@ -56,9 +56,13 @@ namespace foo_mpdsrv
 
 	void MessageSender::SendSongMetadata(metadb_handle_ptr song)
 	{
+		SendAnswer(GetSongMetadataString(song));
+	}
+
+	std::string MessageSender::GetSongMetadataString(metadb_handle_ptr& song)
+	{
  		std::stringstream out;
 		static_api_ptr_t<library_manager> lib;
-
 		pfc::string8 path;
 		if(lib->get_relative_path(song, path))
 		{
@@ -98,7 +102,7 @@ namespace foo_mpdsrv
 				}
 			}
 		}
-		SendAnswer(out.str());
+		return out.str();
 	}
 
 	void MessageSender::SendPlaylist(t_size playlist)
@@ -108,13 +112,21 @@ namespace foo_mpdsrv
 		RequestFromMT req;
 		req.RequestPlaylistItems(playlist, items);
 		t_size num = items.get_count();
+		t_size numNotFound = 0;
 		for(t_size i = 0; i < num; ++i)
 		{
-			SendSongMetadata(items[i]);
-			std::stringstream str;
-			str << "Id: " << LibraryConsistencyCheck::GetId(items[i]) << "\n";
-			str << "Pos: " << i << "\n";
-			SendAnswer(str.str());
+			try
+			{
+				std::stringstream str;
+				str << GetSongMetadataString(items[i]);
+				str << "Pos: " << (i - numNotFound) << "\n";
+				str << "Id: " << LibraryConsistencyCheck::GetId(items[i]) << "\n";
+				SendAnswer(str.str());
+			}
+			catch(foobar2000_io::exception_io_not_found& e)
+			{
+				numNotFound += 1;
+			}
 		}
 	}
 	
@@ -252,6 +264,7 @@ namespace foo_mpdsrv
 	void MessageSender::CloseConnection()
 	{
 		closesocket(_sock);
+		_sock = SOCKET_ERROR;
 	}
 
 	void MessageSender::SendError(unsigned int line, const std::string& command, const CommandException& err)
@@ -354,7 +367,7 @@ public:
 		dict.insert(PfcStdStringPair("genre", "Genre"));
 		dict.insert(PfcStdStringPair("disc", "Disc"));
 		dict.insert(PfcStdStringPair("pos", "Pos"));
-		dict.insert(PfcStdStringPair(g_IdString, "Id"));
+//		dict.insert(PfcStdStringPair(g_IdString, "Id"));
 		return dict;
 	}
 
