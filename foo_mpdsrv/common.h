@@ -16,6 +16,7 @@
 #include <foobar2000.h>
 #include <fstream>
 #pragma warning(pop)
+#include <string>
 
 // For the sake of good!
 #undef NULL
@@ -33,6 +34,12 @@ namespace foo_mpdsrv
 	#define FOO_MPDSRV_API __declspec(dllexport)
 	#else
 	#define FOO_MPDSRV_API __declspec(dllimport)
+	#endif
+
+	#ifdef UNICODE
+	typedef std::wstring tstring;
+	#else
+	typedef std::string string;
 	#endif
 
 	template<class T, typename CountType = unsigned int>
@@ -92,6 +99,26 @@ namespace foo_mpdsrv
 		if(*end != '\0' || (*str) == '\0')
 			throw CommandException(ACK_ERROR_ARG, "argument 1 not a number");
 		return num;
+	}
+
+	inline std::string GetErrString(DWORD errNum)
+	{
+		LPSTR msg = NULL;
+		FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			errNum,
+			0,
+			reinterpret_cast<LPSTR>(&msg),
+			0,
+			NULL);
+		std::string strMsg = msg;
+		LocalFree(msg);
+		return strMsg;
+	}
+
+	inline void GetLastErrString(DWORD& lastErrNum, std::string& lastErrStr)
+	{
+		lastErrNum = GetLastError();
 	}
 }
 
