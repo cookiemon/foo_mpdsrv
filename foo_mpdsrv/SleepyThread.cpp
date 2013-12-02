@@ -13,6 +13,8 @@ namespace foo_mpdsrv
 	}
 	SleepyThread::~SleepyThread()
 	{
+		_event.set_state(true);
+		AbortThread();
 	}
 
 	void SleepyThread::Wake()
