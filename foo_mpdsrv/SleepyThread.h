@@ -9,6 +9,7 @@ namespace foo_mpdsrv
 	{
 	private:
 		win32_event _event;
+		bool _abort;
 
 	private:
 		SleepyThread(const SleepyThread&);
@@ -20,6 +21,7 @@ namespace foo_mpdsrv
 		void Wake();
 	protected:
 		unsigned int ThreadProc(abort_callback& p_abort);
+		void ExitThread();
 		virtual bool WakeProc(abort_callback& p_abort) = 0;
 	};
 }

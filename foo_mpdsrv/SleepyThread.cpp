@@ -4,17 +4,24 @@ namespace foo_mpdsrv
 {
 	SleepyThread::SleepyThread()
 	{
+		_abort = false;
 		_event.create(false, false);
 	}
 	SleepyThread::SleepyThread(SleepyThread&& right)
 	{
+		_abort = right._abort;
 		_event.set(right._event.get());
 		right._event.set(NULL);
 	}
 	SleepyThread::~SleepyThread()
 	{
 		_event.set_state(true);
-		AbortThread();
+	}
+
+	void SleepyThread::ExitThread()
+	{
+		_abort = true;
+		Wake();
 	}
 
 	void SleepyThread::Wake()
@@ -24,26 +31,25 @@ namespace foo_mpdsrv
 
 	unsigned int SleepyThread::ThreadProc(abort_callback& p_abort)
 	{
-		while(true)
+		bool run = true;
+		while(run)
 		{
-			if(_event.wait_for(INFINITE))
-			{
-				p_abort.check();
-				Logger log(Logger::FINEST);
-				log.Log("=> Thread do work now\n");
-				bool foo = WakeProc(p_abort);
-				if(!foo)
-				//if(!WakeProc(p_abort))
-					return 0;
-			}
-			else
+			run = _event.wait_for(INFINITE);
+			p_abort.check();
+
+			run = run && !_abort;
+			if(run)
 			{
 				Logger log(Logger::FINEST);
-				HANDLE evt = _event.get();
-				log.Log("=> Event ");
-				log.Log(evt);
-				log.Log(" Timeout\n");
+				log.Log("Thread received some work.");
+				run = WakeProc(p_abort);
 			}
 		}
+		p_abort.check();
+		Logger log(Logger::DBG);
+		log.Log("Event ");
+		log.Log(_event.get());
+		log.Log(" canceled.");
+		return 0;
 	}
 }

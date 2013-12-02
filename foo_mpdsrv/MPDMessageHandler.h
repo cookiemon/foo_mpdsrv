@@ -24,9 +24,8 @@ namespace foo_mpdsrv
 		std::stringstream _buffer;
 		bool _accumulateList;
 		bool _list_OK;
-		bool _run;
 		std::vector<std::string> _commandQueue;
-		
+
 		typedef void(*Action)(MessageSender& caller, std::vector<std::string>&);
 		typedef std::unordered_map<std::string, Action> ActionMap;
 		ActionMap _actions;

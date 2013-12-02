@@ -15,15 +15,13 @@
 namespace foo_mpdsrv
 {
 	MPDMessageHandler::MPDMessageHandler(MPDMessageHandler&& right) : _sender(std::move(right._sender)),
-		_actions(std::move(right._actions)),
-		_run(right._run)
+		_actions(std::move(right._actions))
 	{
-		right._run = false;
 		_accumulateList = right._accumulateList;
 		_list_OK = right._list_OK;
 	}
 
-	MPDMessageHandler::MPDMessageHandler(SOCKET connection) : _accumulateList(false), _list_OK(false), _sender(connection), _run(true)
+	MPDMessageHandler::MPDMessageHandler(SOCKET connection) : _accumulateList(false), _list_OK(false), _sender(connection)
 	{
 		_actions.insert(std::make_pair("ping", &HandlePing));
 		_actions.insert(std::make_pair("pause", &HandlePause));
@@ -45,21 +43,12 @@ namespace foo_mpdsrv
 
 	MPDMessageHandler::~MPDMessageHandler()
 	{
-		_run = false;
 #ifdef FOO_MPDSRV_THREADED
-		Wake();
+		ExitThread();
 		WaitTillThreadDone();
 #endif
 	}
 	
-	void MPDMessageHandler::Shutdown()
-	{
-		_run = false;
-#ifdef FOO_MPDSRV_THREADED
-		Wake();
-#endif
-	}
-
 	void MPDMessageHandler::PushBuffer(const char* buf, size_t numBytes)
 	{
 		_buffer.write(buf, numBytes);
@@ -148,15 +137,10 @@ namespace foo_mpdsrv
 	bool MPDMessageHandler::WakeProc(abort_callback &abort)
 	{
 		Logger log(Logger::FINEST);
-		log.Log("==>Message Handler woke up\n");
-		log.Log("Status of run: ");
-		log.Log(_run);
+		log.Log("==>MPDMessageHandler got pushed buffer\n");
 		try
 		{
-			if(_run)
-			{
-				HandleBuffer();
-			}
+			HandleBuffer();
 		}
 		catch(const std::exception& e)
 		{
@@ -164,7 +148,7 @@ namespace foo_mpdsrv
 			log.Log("Caught exception: ");
 			log.Log(e.what());
 		}
-		return _run;
+		return true;
 	}
 
 	void MPDMessageHandler::ExecuteCommand(std::string message)
