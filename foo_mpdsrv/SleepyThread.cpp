@@ -15,7 +15,7 @@ namespace foo_mpdsrv
 	}
 	SleepyThread::~SleepyThread()
 	{
-		_event.set_state(true);
+		ExitThread();
 	}
 
 	void SleepyThread::ExitThread()
