@@ -1,5 +1,6 @@
 #include "common.h"
 #include "NetworkInformation.h"
+#include <iphlpapi.h>
 
 inline void popupNetworkError(const char* message, int errorNum = -1)
 {
@@ -112,5 +113,40 @@ namespace foo_mpdsrv
 	ADDRINFOA* NetworkInformation::GetAddressInfo()
 	{
 		return _addressinfo;
+	}
+
+	std::vector<tstring> NetworkInformation::GetValidInterfaces()
+	{
+		HRESULT hr;
+		ULONG size = 0;
+		
+		GetAdaptersAddresses(AF_UNSPEC, 0, NULL, NULL, &size);
+		if(size == 0)
+			return std::vector<tstring>();
+		
+		IP_ADAPTER_ADDRESSES* addr = NULL;
+		do
+		{
+			if(addr != NULL)
+				delete[] addr;
+			addr = new IP_ADAPTER_ADDRESSES[size];
+			hr = GetAdaptersAddresses(AF_UNSPEC, 0, NULL, addr, &size);
+		} while(hr == ERROR_BUFFER_OVERFLOW);
+		if(!SUCCEEDED(hr))
+		{
+			DWORD err = GetLastError();
+			Logger log(Logger::SEVERE);
+			log.Log("Could not retrieve network adapters: ");
+			log.Log(GetErrString(err));
+			return std::vector<tstring>();
+		}
+		IP_ADAPTER_ADDRESSES* cur = addr;
+		std::vector<tstring> retVal;
+		do
+		{
+			retVal.push_back(cur->FriendlyName);
+			cur = cur->Next;
+		} while(cur->Next != NULL);
+		return retVal;
 	}
 }

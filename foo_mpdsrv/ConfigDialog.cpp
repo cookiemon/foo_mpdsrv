@@ -1,5 +1,8 @@
 #include "ConfigDialog.h"
 #include "ConfigVars.h"
+#include "common.h"
+#include "NetworkInformation.h"
+#include <vector>
 
 namespace foo_mpdsrv
 {
@@ -30,6 +33,13 @@ namespace foo_mpdsrv
 
 	BOOL ConfigDialogInstance::OnInit(CWindow wnd, LPARAM lParam)
 	{
+
+		NetworkInformation inf;
+		std::vector<tstring> adapters = inf.GetValidInterfaces();
+		for(int i = 0; i < adapters.size(); ++i)
+		{
+			wnd.SendMessage(CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(adapters[i].c_str()));
+		}
 		ShowSavedValues();
 		return FALSE;
 	}
@@ -54,6 +64,11 @@ namespace foo_mpdsrv
 		_callback->on_state_changed();
 	}
 
+	LRESULT ConfigDialogInstance::OnRefresh(WORD wNotifyCode, WORD wID, HWND hWnd, BOOL& handled)
+	{
+		return 0;
+	}
+
 	t_uint32 ConfigDialogInstance::get_state()
 	{
 		return preferences_state::resettable
@@ -62,6 +77,7 @@ namespace foo_mpdsrv
 
 	void ConfigDialogInstance::apply()
 	{
+		DoDataExchange(DDX_SAVE);
 		pfc::string str;
 		BOOL retval;
 		pfc::string port;
@@ -76,13 +92,18 @@ namespace foo_mpdsrv
 	{
 		g_Port = g_DefaultPort;
 		g_NetworkInterface = "0.0.0.0";
-		g_LibraryRootPath = "";
+		g_LibraryRootPath = "C:/Stuff";
 		ShowSavedValues();
 	}
 
 	void ConfigDialogInstance::ShowSavedValues()
 	{
-		uSetDlgItemText(m_hWnd, IDC_LIBRARYPATH, g_LibraryRootPath);
-		uSetDlgItemText(m_hWnd, IDC_PORT, g_Port);
+		MultiByteToWideChar(CP_UTF8, 0, g_LibraryRootPath.get_ptr(), -1, _libPath, sizeof(_libPath)/sizeof(*_libPath));
+		//MultiByteToWideChar(CP_UTF8, 0, g_Port.get_ptr(), -1, _port, sizeof(_libPath)/sizeof(*_libPath));
+		_port = 6600;
+		MultiByteToWideChar(CP_UTF8, 0, g_NetworkInterface.get_ptr(), -1, _interface, sizeof(_interface)/sizeof(*_interface));
+		//uSetDlgItemText(m_hWnd, IDC_LIBRARYPATH, g_LibraryRootPath);
+		//uSetDlgItemText(m_hWnd, IDC_PORT, g_Port);
+		DoDataExchange(FALSE);
 	}
 }

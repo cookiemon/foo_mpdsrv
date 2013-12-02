@@ -2,6 +2,7 @@
 #define NETWORKINFORMATION_H
 
 #include "common.h"
+#include <vector>
 
 namespace foo_mpdsrv
 {
@@ -25,6 +26,7 @@ namespace foo_mpdsrv
 		bool IsAddressValid(pfc::string8 addr);
 		bool IsPortValid(const pfc::stringp& port);
 		ADDRINFO* GetAddressInfo();
+		std::vector<tstring> GetValidInterfaces();
 	};
 }
 
