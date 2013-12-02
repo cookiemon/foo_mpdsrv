@@ -43,7 +43,6 @@ namespace foo_mpdsrv
 				Logger log(Logger::DBG);
 				log.Log("Binding interface: ");
 				log.Log(addr);
-				log.Log("\n");
 				SOCKET fd = BindSocket(i);
 				if(fd != SOCKET_ERROR)
 					_socketfds.push_back(fd);

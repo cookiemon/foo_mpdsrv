@@ -9,9 +9,13 @@ namespace foo_mpdsrv
 	{
 #ifndef FOO_MPDSRV_DISABLE_LOG
 	private:
-		static const unsigned int _minLvl = 10;
+		static const unsigned int _minLvl = 0;
 		unsigned int _logLvl;
+#ifdef FOO_MPDSRV_LOGFILE
 		std::ofstream _str;
+#else
+		console::formatter _csl;
+#endif
 #endif
 	public:
 		static const unsigned int FINEST = 1;
@@ -19,6 +23,13 @@ namespace foo_mpdsrv
 		static const unsigned int DBG = 10;
 		static const unsigned int WARN = 50;
 		static const unsigned int SEVERE = 100;
+
+		~Logger()
+		{
+#ifdef FOO_MPDSRV_LOGFILE
+			_str << "\n";
+#endif
+		}
 
 		bool IsLogging()
 		{
@@ -34,7 +45,11 @@ namespace foo_mpdsrv
 #ifndef FOO_MPDSRV_DISABLE_LOG
 			if(IsLogging())
 			{
+#ifdef FOO_MPDSRV_LOGFILE
 				_str.write(buf, num);
+#else
+				_csl.add_string_nc(buf, num);
+#endif
 			}
 #endif
 			return *this;
@@ -42,7 +57,10 @@ namespace foo_mpdsrv
 
 		explicit Logger(unsigned int logLvl)
 #ifndef FOO_MPDSRV_DISABLE_LOG
-			: _logLvl(logLvl), _str("C:\\logs\\foo_mpd.log", std::fstream::app)
+			: _logLvl(logLvl)
+#ifdef FOO_MPDSRV_LOGFILE
+			, _str("C:\\logs\\foo_mpd.log", std::fstream::app)
+#endif
 #endif
 		{
 			/* Nothing */
@@ -50,7 +68,10 @@ namespace foo_mpdsrv
 
 		Logger(Logger&& other)
 #ifndef FOO_MPDSRV_DISABLE_LOG
-			: _logLvl(other._logLvl), _str(std::move(other._str))
+			: _logLvl(other._logLvl)
+#ifdef FOO_MPDSRV_LOGFILE
+			, _str(std::move(other._str))
+#endif
 #endif
 		{
 			/* nothing */
@@ -61,8 +82,33 @@ namespace foo_mpdsrv
 		{
 #ifndef FOO_MPDSRV_DISABLE_LOG
 			if(_logLvl >= _minLvl)
+			{
+#ifdef FOO_MPDSRV_LOGFILE
 				_str << val;
-			_str.flush();
+				_str.flush();
+#else
+				std::stringstream sstr;
+				sstr << val;
+				_csl << sstr.str().c_str();
+#endif
+			}
+#endif
+			return *this;
+		}
+
+		template<>
+		Logger& Log<std::string> (const std::string& val)
+		{
+#ifndef FOO_MPDSRV_DISABLE_LOG
+			if(_logLvl >= _minLvl)
+			{
+#ifdef FOO_MPDSRV_LOGFILE
+				_str << val;
+				_str.flush();
+#else
+				_csl << val.c_str();
+#endif
+			}
 #endif
 			return *this;
 		}
