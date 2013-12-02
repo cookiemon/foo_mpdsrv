@@ -65,12 +65,11 @@ namespace foo_mpdsrv
 		t_size pathLength = path.length();
 		while(i < libSize && req.RequestRelativePath(out[i], currentFolder))
 		{
-			currentFolder.remove_chars(0, pathLength);
-			t_size slashIdx = currentFolder.find_first('\\');
+			t_size slashIdx = currentFolder.find_first('\\', pathLength);
 			if(slashIdx != std::numeric_limits<t_size>::max())
 			{
 				currentFolder.remove_chars(slashIdx, currentFolder.length() - slashIdx);
-				currentFolder.add_char('/');
+				currentFolder.add_char('\\');
 			}
 			if(currentFolder != lastFolder)
 			{
@@ -95,6 +94,8 @@ namespace foo_mpdsrv
 		int num = 0;
 		bool intervalStarted = false;
 		static_api_ptr_t<library_manager> lib;
+		t_size i = 0;
+
 		for(t_size i = 0; i < out.get_count(); ++i)
 		{
 			pfc::string8 filename;

@@ -133,6 +133,7 @@ namespace foo_mpdsrv
 	void MessageSender::SendPath(pfc::string8 name)
 	{
 		pfc::string8 msg;
+		name.replace_char('\\', '/');
 		if(name.ends_with('/'))
 		{
 			msg.add_string("directory: ");
