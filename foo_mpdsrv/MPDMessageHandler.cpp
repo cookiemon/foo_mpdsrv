@@ -78,7 +78,6 @@ namespace foo_mpdsrv
 		std::getline(_buffer, nextCommand);
 		log.Log("==>Next Command: ");
 		log.Log(nextCommand);
-		log.Log("\n");
 		if(!_lastIncomplete.empty())
 		{
 			nextCommand = _lastIncomplete + nextCommand;
@@ -90,7 +89,6 @@ namespace foo_mpdsrv
 				Logger log(Logger::DBG);
 				log.Log("I: ");
 				log.Log(nextCommand);
-				log.Log("\n");
 			}
 			if(!_accumulateList)
 			{
@@ -139,7 +137,6 @@ namespace foo_mpdsrv
 				log.Log(_buffer.bad()?"Bad":"");
 				log.Log(_buffer.fail()?"Fail":"");
 				log.Log(_buffer.eof()?"EOF":"");
-				log.Log("\n");
 			}
 #endif
 		_lastIncomplete = nextCommand;
@@ -154,10 +151,18 @@ namespace foo_mpdsrv
 		log.Log("==>Message Handler woke up\n");
 		log.Log("Status of run: ");
 		log.Log(_run);
-		log.Log("\n");
-		if(_run)
+		try
 		{
-			HandleBuffer();
+			if(_run)
+			{
+				HandleBuffer();
+			}
+		}
+		catch(const std::exception& e)
+		{
+			Logger log(Logger::SEVERE);
+			log.Log("Caught exception: ");
+			log.Log(e.what());
 		}
 		return _run;
 	}
@@ -165,6 +170,8 @@ namespace foo_mpdsrv
 	void MPDMessageHandler::ExecuteCommand(std::string message)
 	{
 		std::vector<std::string> cmd = SplitCommand(message);
+		if(cmd.empty())
+			return;
 		std::transform(cmd[0].begin(), cmd[0].end(), cmd[0].begin(), tolower);
 
 		auto action = _actions.find(cmd[0]);
@@ -178,7 +185,6 @@ namespace foo_mpdsrv
 				Logger log(Logger::WARN);
 				log.Log("Command not found: ");
 				log.Log(message);
-				log.Log("\n");
 			}
 #endif
 		}
