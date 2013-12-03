@@ -135,4 +135,17 @@ namespace foo_mpdsrv
 	{
 		caller.SendStatus();
 	}
+
+	void HandleVolume(MessageSender& caller, std::vector<std::string>& args)
+	{
+		static_api_ptr_t<playback_control> man;
+		if(args.size() < 2)
+			throw CommandException(ACK_ERROR_ARG, "Command needs argument");
+		float vol;
+		ConvertTo(args[1], vol);
+		if(vol < 0 || 100 < vol)
+			throw CommandException(ACK_ERROR_ARG, "Argument out of range");
+		vol -= 100;
+		SimpleApiMTCall(&playback_control::set_volume, vol);
+	}
 }

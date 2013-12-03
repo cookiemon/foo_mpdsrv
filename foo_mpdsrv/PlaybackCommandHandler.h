@@ -24,6 +24,7 @@ namespace foo_mpdsrv
 	void HandleNext(MessageSender&, std::vector<std::string>& args);
 	void HandlePrevious(MessageSender&, std::vector<std::string>& args);
 	void HandleStatus(MessageSender& caller, std::vector<std::string>& args);
+	void HandleVolume(MessageSender& caller, std::vector<std::string>& args);
 }
 
 #endif
