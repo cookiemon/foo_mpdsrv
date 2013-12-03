@@ -91,14 +91,24 @@ namespace foo_mpdsrv
 		return std::equal(right.begin(), right.end(), left.begin(), CompareTolower());
 	}
 
-	inline long ConvertToLong(const char* str)
+	template<typename T, typename U>
+	class Converter
 	{
-		long num;
-		char* end;
-		num = strtol(str, &end, 10);
-		if(*end != '\0' || (*str) == '\0')
-			throw CommandException(ACK_ERROR_ARG, "argument 1 not a number");
-		return num;
+	public:
+		void operator()(const T& in, U& out)
+		{
+			std::stringstream ss;
+			ss << in;
+			ss >> out;
+			if(ss.fail())
+				throw CommandException(ACK_ERROR_ARG, "Argument type mismatch");
+		}
+	};
+
+	template<typename T, typename U>
+	inline void ConvertTo(const T& in, U& out)
+	{
+		Converter<T, U>()(in, out);
 	}
 
 	inline std::string GetErrString(DWORD errNum)

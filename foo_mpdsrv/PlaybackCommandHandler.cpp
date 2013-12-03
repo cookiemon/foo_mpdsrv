@@ -75,12 +75,14 @@ namespace foo_mpdsrv
 	void HandlePlayId(MessageSender&, std::vector<std::string>& args)
 	{
 		PlaylistSelector pl = DefaultPlaylistSelector();
+		idtype songId;
+		ConvertTo(args[1], songId);
 		SongSelector song;
 		if(args.size() >= 2)
 		{
 			RequestFromMT reqmt;
 			reqmt.DoCallback([&](){
-				song = SongIdSelector(args[1], pl.GetPlaylistNum());
+				song = SongIdSelector(songId, pl.GetPlaylistNum());
 			});
 		}
 		PlayItem(pl, song);

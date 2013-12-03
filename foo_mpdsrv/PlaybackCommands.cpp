@@ -19,15 +19,15 @@ namespace foo_mpdsrv
 	}
 	SongNumSelector::SongNumSelector(const char* songNum)
 	{
-		_songNum = ConvertToLong(songNum);
+		ConvertTo(songNum, _songNum);
 	}
 	SongNumSelector::SongNumSelector(const std::string& songNum)
 	{
-		_songNum = ConvertToLong(songNum.c_str());
+		ConvertTo(songNum, _songNum);
 	}
 
 
-	SongIdSelector::HandleIdSearch::HandleIdSearch(long searchedItem)
+	SongIdSelector::HandleIdSearch::HandleIdSearch(idtype searchedItem)
 	{
 		_searchedItem = searchedItem;
 		_pos = std::numeric_limits<t_size>::max();
@@ -45,20 +45,12 @@ namespace foo_mpdsrv
 	{
 		return _pos;
 	}
-	SongIdSelector::SongIdSelector(long id, t_size playlist)
+	SongIdSelector::SongIdSelector(idtype id, t_size playlist)
 	{
 		InitId(id, playlist);
 	}
-	SongIdSelector::SongIdSelector(const char* id, t_size playlist)
-	{
-		InitId(ConvertToLong(id), playlist);
-	}
-	SongIdSelector::SongIdSelector(const std::string& id, t_size playlist)
-	{
-		InitId(ConvertToLong(id.c_str()), playlist);
-	}
 
-	void SongIdSelector::InitId(long id, t_size playlist)
+	void SongIdSelector::InitId(idtype id, t_size playlist)
 	{
 		HandleIdSearch searchHandler(id);
 		static_api_ptr_t<playlist_manager> plMan;

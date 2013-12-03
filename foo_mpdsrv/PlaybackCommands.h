@@ -2,6 +2,7 @@
 #define PLAYBACKCOMMANDS_H
 
 #include "common.h"
+#include "ConfigVars.h"
 
 namespace foo_mpdsrv
 {
@@ -28,19 +29,17 @@ namespace foo_mpdsrv
 		class HandleIdSearch : public playlist_manager::enum_items_callback
 		{
 		private:
-			long _searchedItem;
+			idtype _searchedItem;
 			t_size _pos;
 		public:
-			explicit HandleIdSearch(long searchedItem);
+			explicit HandleIdSearch(idtype searchedItem);
 			virtual bool on_item(t_size p_index,const metadb_handle_ptr & p_location,bool b_selected);
 			t_size GetResult();
 		};
 	public:
-		SongIdSelector(long id, t_size playlist);
-		SongIdSelector(const char* id, t_size playlist);
-		SongIdSelector(const std::string& id, t_size playlist);
+		SongIdSelector(idtype id, t_size playlist);
 	private:
-		void InitId(long id, t_size playlist);
+		void InitId(idtype id, t_size playlist);
 	};
 
 	class PlaylistSelector
