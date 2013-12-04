@@ -50,9 +50,8 @@ namespace foo_mpdsrv
 				else
 				{
 					int err = WSAGetLastError();
-					console::formatter form;
-					form << "Could not read from network socket (" << err << ", " << gai_strerrorA(err) << ")";
-					popup_message::g_show(form, PLUGINNAME, popup_message::icon_error);
+					Logger log(Logger::SEVERE);
+					log.LogWinError("Could not read from network socket", err);
 				}
 				break;
 			}
