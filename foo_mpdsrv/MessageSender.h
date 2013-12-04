@@ -38,14 +38,13 @@ namespace foo_mpdsrv
 		bool IsValid() { return _sock != SOCKET_ERROR; }
 		SOCKET GetId() { return _sock; }
 
-	protected:
-		bool WakeProc(abort_callback& p_abort);
 	private:
 		bool SendAnswer(const std::string& answ);
 		bool SendAnswer(const pfc::string8& answ);
 		bool SendAnswer(const char* answ);
 		bool SendAnswer(std::istream& answ);
 		bool SendBytes(const char* buf, int numBytes);
+		void WaitForSocket();
 		pfc::string8 TranslateMetadata(const pfc::string8& data);
 	};
 

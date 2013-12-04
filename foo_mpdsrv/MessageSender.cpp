@@ -264,11 +264,6 @@ namespace foo_mpdsrv
 		return SendBytes(message.c_str(), numBytes);
 	}
 
-	bool MessageSender::WakeProc(abort_callback& p_abort)
-	{
-		return true;
-	}
-
 	bool MessageSender::SendAnswer(const pfc::string8& message)
 	{
 		int numBytes = message.get_length();
@@ -294,6 +289,8 @@ namespace foo_mpdsrv
 	{
 		if(numBytes == 0) { return true; }
 
+		WaitForSocket();
+		
 		int bytesSend = send(_sock, buf, numBytes, 0);
 		if(bytesSend == static_cast<SOCKET>(SOCKET_ERROR))
 		{
@@ -306,7 +303,7 @@ namespace foo_mpdsrv
 			}
 			else
 			{
-				Logger log(Logger::WARN);
+				Logger log(Logger::SEVERE);
 				log.Log("send returned WSAEWOULDBLOCK");
 			}
 		}
@@ -316,15 +313,25 @@ namespace foo_mpdsrv
 			log.Log("Not all bytes were sent");
 			return false;
 		}
-
-#ifdef _DEBUG
-			{
-				Logger log(Logger::FINER);
-				log.Log("O: ");
-				log.Write(buf, numBytes);
-			}
-#endif
+		Logger log(Logger::FINEST);
+		log.Log("O: ");
+		log.Write(buf, numBytes);
 		return true;
+	}
+
+	void MessageSender::WaitForSocket()
+	{
+		int lastError = 0;
+		fd_set fds;
+		fds.fd_count = 1;
+		fds.fd_array[0] = _sock;
+		lastError = select(0, NULL, &fds, NULL, NULL);
+		if(lastError == SOCKET_ERROR)
+		{
+			lastError = WSAGetLastError();
+			Logger log(Logger::SEVERE);
+			log.LogWinError("Could not select socket", lastError);
+		}
 	}
 
 	class PfcHash

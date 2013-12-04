@@ -120,16 +120,6 @@ namespace foo_mpdsrv
 			}
 			std::getline(_buffer, nextCommand);
 		}
-#ifdef _DEBUG
-			{
-				Logger log(Logger::DBG);
-				log.Log("Bufferstate: ");
-				log.Log(_buffer.good()?"Good":"");
-				log.Log(_buffer.bad()?"Bad":"");
-				log.Log(_buffer.fail()?"Fail":"");
-				log.Log(_buffer.eof()?"EOF":"");
-			}
-#endif
 		_lastIncomplete = nextCommand;
 		_buffer.str("");
 		_buffer.seekg(nextCommand.size());
@@ -165,14 +155,9 @@ namespace foo_mpdsrv
 			action->second(_sender, cmd);
 		else
 		{
-#ifdef _DEBUG
-			popup_message::g_show(message.c_str(), "Could not process");
-			{
-				Logger log(Logger::WARN);
-				log.Log("Command not found: ");
-				log.Log(message);
-			}
-#endif
+			Logger log(Logger::DBG);
+			log.Log("Command not found: ");
+			log.Log(message);
 		}
 	}
 	
