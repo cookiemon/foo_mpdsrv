@@ -110,26 +110,6 @@ namespace foo_mpdsrv
 	{
 		Converter<T, U>()(in, out);
 	}
-
-	inline std::string GetErrString(DWORD errNum)
-	{
-		LPSTR msg = NULL;
-		FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
-			errNum,
-			0,
-			reinterpret_cast<LPSTR>(&msg),
-			0,
-			NULL);
-		std::string strMsg = msg;
-		LocalFree(msg);
-		return strMsg;
-	}
-
-	inline void GetLastErrString(DWORD& lastErrNum, std::string& lastErrStr)
-	{
-		lastErrNum = GetLastError();
-	}
 }
 
 #endif

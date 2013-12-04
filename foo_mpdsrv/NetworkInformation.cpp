@@ -2,22 +2,6 @@
 #include "NetworkInformation.h"
 #include <iphlpapi.h>
 
-inline void popupNetworkError(const char* message, int errorNum = -1)
-{
-	if(errorNum == -1)
-		errorNum = WSAGetLastError();
-	//console::formatter form;
-	//form << message << " (" << errorNum << ", " << gai_strerrorA(errorNum) << ")";
-	//popup_message::g_show(form, PLUGINNAME, popup_message::icon_error);
-	foo_mpdsrv::Logger log(foo_mpdsrv::Logger::SEVERE);
-	log.Log(message);
-	log.Log(" (");
-	log.Log(errorNum);
-	log.Log(", ");
-	log.Log(gai_strerrorA(errorNum));
-	log.Log(")\n");
-}
-
 namespace foo_mpdsrv
 {
 
@@ -31,7 +15,8 @@ namespace foo_mpdsrv
 			_lastError = WSAStartup(MAKEWORD(2, 0), &_socketInformation);
 			if(_lastError != ERROR_SUCCESS)
 			{
-				popupNetworkError("Could not initialize WinSocks", _lastError);
+				Logger log(Logger::SEVERE);
+				log.LogWinError("Could not initialise WSA", _lastError);
 				return;
 			}
 		}
@@ -45,7 +30,8 @@ namespace foo_mpdsrv
 			_lastError = WSACleanup();
 			if(_lastError != ERROR_SUCCESS)
 			{
-				popupNetworkError("Could not cleanup WinSocks", _lastError);
+				Logger log(Logger::SEVERE);
+				log.LogWinError("Could not cleanup WSA", _lastError);
 			}
 		}
 	}
@@ -63,7 +49,8 @@ namespace foo_mpdsrv
 		_lastError = getaddrinfo(addr.get_ptr(), port.get_ptr(), &hints, &_addressinfo);
 		if(_lastError != ERROR_SUCCESS)
 		{
-			popupNetworkError("Could not retrieve address information", _lastError);
+			Logger log(Logger::SEVERE);
+			log.LogWinError("Could not retrieve address information", _lastError);
 			return;
 		}
 	}

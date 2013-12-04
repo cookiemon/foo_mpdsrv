@@ -7,20 +7,6 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 
-//TODO: IMPROVE
-inline void popupNetworkError(const char* message, int errorNum = -1)
-{
-	if(errorNum == -1)
-		errorNum = WSAGetLastError();
-	foo_mpdsrv::Logger log(foo_mpdsrv::Logger::SEVERE);
-	log.Log(message);
-	log.Log(" (");
-	log.Log(errorNum);
-	log.Log(", ");
-	log.Log(gai_strerrorA(errorNum));
-	log.Log(")\n");
-}
-
 namespace foo_mpdsrv
 {
 
@@ -52,12 +38,16 @@ namespace foo_mpdsrv
 		}
 		if(_socketfds.empty())
 		{
-			popupNetworkError("Could not bind to any socket", _lastError);
+			Logger log(Logger::SEVERE);
+			log.LogWinError("Could not bind to socket", _lastError);
 			return;
 		}
 		else
 		{
-			popupNetworkError("Bound to some addresses", _socketfds.size());
+			Logger log(Logger::DBG);
+			log.Log("Bound to ");
+			log.Log(_socketfds.size());
+			log.Log(" addresses");
 		}
 	}
 
@@ -103,13 +93,15 @@ namespace foo_mpdsrv
 				else
 				{
 					_lastError = WSAGetLastError();
-					popupNetworkError("Listen on socket failed", _lastError);
+					Logger log(Logger::SEVERE);
+					log.LogWinError("Listen to socket failed", _lastError);
 				}
 			}
 			else
 			{
 				_lastError = WSAGetLastError();
-				popupNetworkError("Could not request receive notifications", _lastError);
+				Logger log(Logger::SEVERE);
+				log.LogWinError("Could not request receive notifications", _lastError);
 			}
 		}
 

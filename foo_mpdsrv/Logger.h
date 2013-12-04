@@ -5,6 +5,27 @@
 
 namespace foo_mpdsrv
 {
+
+	inline std::string GetErrString(DWORD errNum)
+	{
+		LPSTR msg = NULL;
+		FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			errNum,
+			0,
+			reinterpret_cast<LPSTR>(&msg),
+			0,
+			NULL);
+		std::string strMsg = msg;
+		LocalFree(msg);
+		return strMsg;
+	}
+
+	inline void GetLastErrString(DWORD& lastErrNum, std::string& lastErrStr)
+	{
+		lastErrNum = GetLastError();
+	}
+
 	class Logger
 	{
 #ifndef FOO_MPDSRV_DISABLE_LOG
@@ -110,6 +131,16 @@ namespace foo_mpdsrv
 #endif
 			}
 #endif
+			return *this;
+		}
+		
+		Logger& LogWinError(const std::string& val, DWORD errNum)
+		{
+			Log(val);
+			Log(": (");
+			Log(errNum);
+			Log(") ");
+			Log(GetErrString);
 			return *this;
 		}
 

@@ -7,23 +7,6 @@
 #include <sstream>
 #include <unordered_map>
 
-//TODO: IMPROVE!
-inline void popupNetworkError(const char* message, int errorNum = -1)
-{
-	if(errorNum == -1)
-		errorNum = WSAGetLastError();
-	//console::formatter form;
-	//form << message << " (" << errorNum << ", " << gai_strerrorA(errorNum) << ")";
-	//popup_message::g_show(form, PLUGINNAME, popup_message::icon_error);
-	foo_mpdsrv::Logger log(foo_mpdsrv::Logger::SEVERE);
-	log.Log(message);
-	log.Log(" (");
-	log.Log(errorNum);
-	log.Log(", ");
-	log.Log(gai_strerrorA(errorNum));
-	log.Log(")\n");
-}
-
 namespace foo_mpdsrv
 {
 	MessageSender::MessageSender(SOCKET connection)
@@ -314,15 +297,23 @@ namespace foo_mpdsrv
 		int bytesSend = send(_sock, buf, numBytes, 0);
 		if(bytesSend == static_cast<SOCKET>(SOCKET_ERROR))
 		{
-			if(WSAGetLastError() != WSAEWOULDBLOCK)
+			int lastError = WSAGetLastError();
+			if(lastError != WSAEWOULDBLOCK)
 			{
-				popupNetworkError("Could not send message");
+				Logger log(Logger::SEVERE);
+				log.LogWinError("Could not send message", lastError);
 				return false;
+			}
+			else
+			{
+				Logger log(Logger::WARN);
+				log.Log("send returned WSAEWOULDBLOCK");
 			}
 		}
 		else if(numBytes != bytesSend)
 		{
-			popup_message::g_show("Could not send all bytes. Investigate!", PLUGINNAME, popup_message::icon_error);
+			Logger log(Logger::SEVERE);
+			log.Log("Not all bytes were sent");
 			return false;
 		}
 
