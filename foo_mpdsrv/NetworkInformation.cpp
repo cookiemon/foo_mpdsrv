@@ -1,5 +1,6 @@
 #include "common.h"
 #include "NetworkInformation.h"
+#include <WinSock2.h>
 #include <iphlpapi.h>
 
 namespace foo_mpdsrv
@@ -58,7 +59,7 @@ namespace foo_mpdsrv
 	void NetworkInformation::FreeAddressInfo()
 	{
 		if(_addressinfo != NULL)
-			FreeAddrInfoA(_addressinfo);
+			freeaddrinfo(_addressinfo);
 		_addressinfo = NULL;
 	}
 

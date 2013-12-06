@@ -1,9 +1,9 @@
 #ifndef CONNECTIONLISTENER_H
 #define CONNECTIONLISTENER_H
 
-#include <WinSock2.h>
 #include "common.h"
 #include "NetworkInformation.h"
+#include <WinSock2.h>
 #include <vector>
 
 namespace foo_mpdsrv

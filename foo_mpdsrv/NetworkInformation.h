@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include <vector>
+#include <WS2tcpip.h>
 
 namespace foo_mpdsrv
 {

@@ -6,13 +6,10 @@
 // Microsoft, I hate you. I really really do.
 // Breaks std::numeric_limits<>::max()
 #define NOMINMAX
-#undef WINVER
-#define WINVER 0x0502
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0502
+#include <winsdkver.h>
+#define _WIN32_WINNT _WIN32_WINNT_WINXP
+#include <SDKDDKVer.h>
 #include <ATLHelpers.h>
-#include <WinSock2.h>
-#include <WS2tcpip.h>
 #include <foobar2000.h>
 #include <fstream>
 #pragma warning(pop)

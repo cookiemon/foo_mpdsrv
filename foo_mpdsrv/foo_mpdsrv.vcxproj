@@ -183,7 +183,6 @@
     <ClInclude Include="RequestFromMT.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SleepyThread.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="WindowMessageHandler.h" />
   </ItemGroup>
   <ItemGroup>
