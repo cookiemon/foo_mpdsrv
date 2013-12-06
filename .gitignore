@@ -17,9 +17,12 @@
 *.pdb
 *.ilk
 Release/
+Release*/
 Debug/
+Debug*/
 ipch/
 *.user
 *.suo
 *.sdf
 *.opensdf
+*.vsp
