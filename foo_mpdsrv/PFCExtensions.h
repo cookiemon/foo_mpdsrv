@@ -3,7 +3,7 @@
 
 namespace foo_mpdsrv
 {
-	class PfcHash
+	class PfcStringHash
 	{
 	public:
 		size_t operator()(const pfc::string8& _Keyval) const

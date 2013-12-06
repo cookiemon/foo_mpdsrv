@@ -335,7 +335,7 @@ namespace foo_mpdsrv
 		}
 	}
 
-	typedef std::unordered_map<pfc::string8, pfc::string8, PfcHash> PfcStdStringDict;
+	typedef std::unordered_map<pfc::string8, pfc::string8, PfcStringHash> PfcStdStringDict;
 	typedef std::pair<pfc::string8, pfc::string8> PfcStdStringPair;
 
 	PfcStdStringDict initDict()
