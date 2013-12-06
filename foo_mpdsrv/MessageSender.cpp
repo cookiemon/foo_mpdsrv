@@ -1,3 +1,4 @@
+#include "AutoFreeHandle.h"
 #include "MessageSender.h"
 #include "PFCExtensions.h"
 #include "common.h"
@@ -40,12 +41,20 @@ namespace foo_mpdsrv
 
 	void MessageSender::SendSongMetadata(metadb_handle_ptr song)
 	{
-		SendAnswer(GetSongMetadataString(song));
+		std::stringstream str;
+		GetSongMetadataString(str, song);
+		SendAnswer(str.str());
 	}
 
-	std::string MessageSender::GetSongMetadataString(metadb_handle_ptr& song)
+	void MessageSender::GetSongMetadataString(std::stringstream& out, metadb_handle_ptr& song)
 	{
- 		std::stringstream out;
+		file_info_const_impl fi;
+		song->get_info(fi);
+		GetSongMetadataString(out, song, fi);
+	}
+
+	void MessageSender::GetSongMetadataString(std::stringstream& out, metadb_handle_ptr& song, const file_info& fi)
+	{
 		static_api_ptr_t<library_manager> lib;
 		pfc::string8 path;
 		if(lib->get_relative_path(song, path))
@@ -53,40 +62,35 @@ namespace foo_mpdsrv
 			path.replace_char('\\', '/');
 			out << "file: " << path.get_ptr() << "\n";
 		}
+
+		out << "Time: " << static_cast<int>(fi.get_length()) << "\n";
 		
-		file_info_const_impl fi;
-		if(song->get_info(fi))
+		t_size numMeta = fi.meta_get_count();
+		for(t_size i = 0; i < numMeta; ++i)
 		{
-			out << "Time: " << static_cast<int>(fi.get_length()) << "\n";
+			pfc::string8 key = TranslateMetadata(fi.meta_enum_name(i));
+			if(key.is_empty())
+				continue;
 
-			t_size numMeta = fi.meta_get_count();
-			for(t_size i = 0; i < numMeta; ++i)
+			t_size numMetaValues = fi.meta_enum_value_count(i);
+			for(t_size k = 0; k < numMetaValues; ++k)
 			{
-				pfc::string8 key = TranslateMetadata(fi.meta_enum_name(i));
-				if(key.is_empty())
-					continue;
-
-				t_size numMetaValues = fi.meta_enum_value_count(i);
-				for(t_size k = 0; k < numMetaValues; ++k)
-				{
-					pfc::string8 value = fi.meta_enum_value(i, k);
-					value.replace_nontext_chars(' ');
-					out << key.get_ptr() << ": " << value << "\n";
-				}
-			}
-			t_size numInfo = fi.info_get_count();
-			for(t_size i = 0; i < numInfo; ++i)
-			{
-				pfc::string8 key = TranslateMetadata(fi.info_enum_name(i));
-				if(key != "")
-				{
-					pfc::string8 value = fi.info_enum_value(i);
-					value.replace_nontext_chars(' ');
-					out << key.get_ptr() << ": " << value << "\n";
-				}
+				pfc::string8 value = fi.meta_enum_value(i, k);
+				value.replace_nontext_chars(' ');
+				out << key.get_ptr() << ": " << value << "\n";
 			}
 		}
-		return out.str();
+		t_size numInfo = fi.info_get_count();
+		for(t_size i = 0; i < numInfo; ++i)
+		{
+			pfc::string8 key = TranslateMetadata(fi.info_enum_name(i));
+			if(key != "")
+			{
+				pfc::string8 value = fi.info_enum_value(i);
+				value.replace_nontext_chars(' ');
+				out << key.get_ptr() << ": " << value << "\n";
+			}
+		}
 	}
 
 	void MessageSender::SendPlaylist(t_size playlist)
@@ -102,9 +106,14 @@ namespace foo_mpdsrv
 			try
 			{
 				std::stringstream str;
-				str << GetSongMetadataString(items[i]);
-				str << "Pos: " << (i - numNotFound) << "\n";
-				str << "Id: " << LibraryConsistencyCheck::GetId(items[i]) << "\n";
+				{
+					FooMetadbHandlePtrLock lock(items[i]);
+					const file_info* fi;
+					items[i]->get_info_locked(fi);
+					GetSongMetadataString(str, items[i], *fi);
+					str << "Pos: " << (i - numNotFound) << "\n";
+					str << "Id: " << LibraryConsistencyCheck::GetId(items[i], *fi) << "\n";
+				}
 				SendAnswer(str.str());
 			}
 			catch(foobar2000_io::exception_io_not_found& e)

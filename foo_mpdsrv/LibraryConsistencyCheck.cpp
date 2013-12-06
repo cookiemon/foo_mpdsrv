@@ -41,7 +41,7 @@ namespace foo_mpdsrv
 		p_item->get_info(fi);
 		return GetId(p_item, fi);
 	}
-	idtype LibraryConsistencyCheck::GetId(metadb_handle_ptr p_item, file_info& fi)
+	idtype LibraryConsistencyCheck::GetId(metadb_handle_ptr p_item, const file_info& fi)
 	{
 		const char* idStr = fi.meta_get(g_IdString, 0);
 		char* idStrEnd;
@@ -62,6 +62,12 @@ namespace foo_mpdsrv
 		file_info_impl fi;
 		p_item->get_info(fi);
 		SetId(p_item, fi, newId);
+	}
+	void LibraryConsistencyCheck::SetId(metadb_handle_ptr p_item, const file_info& fi, idtype newId)
+	{
+		file_info_impl nonConstFi;
+		nonConstFi.copy(fi);
+		SetId(p_item, nonConstFi, newId);
 	}
 	void LibraryConsistencyCheck::SetId(metadb_handle_ptr p_item, file_info& fi, idtype newId)
 	{

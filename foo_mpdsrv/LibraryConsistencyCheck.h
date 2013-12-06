@@ -16,8 +16,9 @@ namespace foo_mpdsrv
 		bool on_item(const metadb_handle_ptr& p_item);
 		static idtype GenerateNewId();
 		static idtype GetId(metadb_handle_ptr p_item);
-		static idtype GetId(metadb_handle_ptr p_item, file_info& fi);
+		static idtype GetId(metadb_handle_ptr p_item, const file_info& fi);
 		static void SetId(idtype newId, metadb_handle_ptr p_item);
+		static void SetId(metadb_handle_ptr p_item, const file_info& fi, idtype newId);
 		static void SetId(metadb_handle_ptr p_item, file_info& fi, idtype newId);
 	};
 	class LibraryConsistencyWorker : public threaded_process_callback
