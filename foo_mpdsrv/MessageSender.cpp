@@ -1,4 +1,5 @@
 #include "MessageSender.h"
+#include "PFCExtensions.h"
 #include "common.h"
 #include "ConfigVars.h"
 #include "RequestFromMT.h"
@@ -333,22 +334,6 @@ namespace foo_mpdsrv
 			log.LogWinError("Could not select socket", lastError);
 		}
 	}
-
-	class PfcHash
-	{
-public:
-	size_t operator()(const pfc::string8& _Keyval) const
-		{	// hash _Keyval to size_t value by pseudorandomizing transform
-		size_t _Val = 2166136261U;
-		size_t _First = 0;
-		size_t _Last = _Keyval.length();
-		size_t _Stride = 1 + _Last / 10;
-
-		for(; _First < _Last; _First += _Stride)
-			_Val = 16777619U * _Val ^ (size_t)_Keyval[_First];
-		return (_Val);
-		}
-	};
 
 	typedef std::unordered_map<pfc::string8, pfc::string8, PfcHash> PfcStdStringDict;
 	typedef std::pair<pfc::string8, pfc::string8> PfcStdStringPair;
