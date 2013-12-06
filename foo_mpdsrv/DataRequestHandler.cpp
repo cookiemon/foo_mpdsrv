@@ -53,9 +53,9 @@ namespace foo_mpdsrv
 		pfc::list_t<metadb_handle_ptr> out;
 		RequestFromMT req;
 		req.RequestLibraryItems(out);
+		FilterListByPath(out, path);
 		SortByFolder tmp;
 		out.sort(tmp);
-		FilterListByPath(out, path);
 
 		pfc::string8 lastFolder;
 		pfc::string8 currentFolder;
