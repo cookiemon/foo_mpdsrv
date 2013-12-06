@@ -1,6 +1,8 @@
 #include "DataRequestHandler.h"
 #include "RequestFromMT.h"
 #include "common.h"
+#include "PFCExtensions.h"
+#include <unordered_set>
 
 namespace foo_mpdsrv
 {
@@ -54,29 +56,27 @@ namespace foo_mpdsrv
 		RequestFromMT req;
 		req.RequestLibraryItems(out);
 		FilterListByPath(out, path);
-		SortByFolder tmp;
-		out.sort(tmp);
-
-		pfc::string8 lastFolder;
+		
+		std::unordered_set<pfc::string8, PfcStringHash> sentFolders;
 		pfc::string8 currentFolder;
 		t_size libSize = out.get_count();
-		t_size i = 0;
 
 		t_size pathLength = path.length();
-		while(i < libSize && req.RequestRelativePath(out[i], currentFolder))
+		for(t_size i = 0; i < libSize; ++i)
 		{
+			if(!req.RequestRelativePath(out[i], currentFolder))
+				continue;
 			t_size slashIdx = currentFolder.find_first('\\', pathLength);
 			if(slashIdx != std::numeric_limits<t_size>::max())
 			{
 				currentFolder.remove_chars(slashIdx, currentFolder.length() - slashIdx);
 				currentFolder.add_char('\\');
 			}
-			if(currentFolder != lastFolder)
+			if(sentFolders.find(currentFolder) == sentFolders.end())
 			{
 				caller.SendPath(currentFolder);
-				lastFolder = currentFolder;
+				sentFolders.insert(currentFolder);
 			}
-			++i;
 		}
 
 		if(path.is_empty())
@@ -94,7 +94,6 @@ namespace foo_mpdsrv
 		int num = 0;
 		bool intervalStarted = false;
 		static_api_ptr_t<library_manager> lib;
-		t_size i = 0;
 
 		for(t_size i = 0; i < out.get_count(); ++i)
 		{
