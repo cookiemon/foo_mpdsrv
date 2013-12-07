@@ -77,13 +77,13 @@ namespace foo_mpdsrv
 			switch(idx)
 			{
 			case cmd_connect:
-				out = "Connect";
+				out = "Start listening";
 				break;
 			case cmd_disconnect:
-				out = "Disconnect";
+				out = "Stop listening";
 				break;
 			case cmd_reconnect:
-				out = "Reconnect";
+				out = "Restart listening";
 				break;
 			case cmd_library:
 				out = "Check Library";
