@@ -22,14 +22,11 @@ namespace foo_mpdsrv
 			COMMAND_HANDLER_EX(IDC_PORT, EN_CHANGE, OnChangedItem)
 			COMMAND_HANDLER_EX(IDC_NETWORKINTERFACE, EN_CHANGE, OnChangedItem)
 			COMMAND_HANDLER_EX(IDC_LIBRARYPATH, EN_CHANGE, OnChangedItem)
-			COMMAND_ID_HANDLER(IDC_REFRESH, OnRefresh)
 		END_MSG_MAP()
 
 		explicit ConfigDialogInstance(preferences_page_callback::ptr callback);
 		BOOL OnInit(CWindow wnd, LPARAM lParam);
-		void OnPathChange(UINT foo, int bar, CWindow baz);
 		void OnChangedItem(UINT wNotifyCode, int ctrl, HWND hWnd);
-		LRESULT OnRefresh(WORD wNotifyCode, WORD wID, HWND hWnd, BOOL& handled);
 		bool HasChanged();
 		void OnChange();
 

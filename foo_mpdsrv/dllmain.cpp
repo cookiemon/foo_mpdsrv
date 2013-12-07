@@ -21,9 +21,19 @@ namespace foo_mpdsrv
 	public:
 		void on_init()
 		{
-			listener.reset(new ConnectionListener());
-			listener->StartListening(g_NetworkInterface, g_Port);
-			//listener->StartListening("192.168.56.1", "6600");
+			if(g_Autostart)
+			{
+				listener.reset(new ConnectionListener());
+				listener->StartListening(g_NetworkInterface, g_Port);
+			}
+		}
+		void on_quit()
+		{
+			if(listener.get())
+			{
+				listener->StopListening();
+				listener.reset(NULL);
+			}
 		}
 	};
 
@@ -154,7 +164,7 @@ namespace foo_mpdsrv
 				if(listener.get())
 				{
 					listener->StopListening();
-					listener.release();
+					listener.reset(NULL);
 				}
 				break;
 			case cmd_reconnect:

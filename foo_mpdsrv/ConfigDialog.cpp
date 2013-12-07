@@ -34,40 +34,27 @@ namespace foo_mpdsrv
 	BOOL ConfigDialogInstance::OnInit(CWindow wnd, LPARAM lParam)
 	{
 
-		NetworkInformation inf;
-		std::vector<tstring> adapters = inf.GetValidInterfaces();
-		for(int i = 0; i < adapters.size(); ++i)
-		{
-			wnd.SendMessage(CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(adapters[i].c_str()));
-		}
 		ShowSavedValues();
 		return FALSE;
 	}
 	
-	void ConfigDialogInstance::OnPathChange(UINT foo, int bar, CWindow baz)
-	{
-		OnChange();
-	}
-
 	bool ConfigDialogInstance::HasChanged()
 	{
 		pfc::string root;
 		pfc::string networkIF;
 		pfc::string port;
+		bool autostart;
 		root = uGetDlgItemText(m_hWnd, IDC_LIBRARYPATH);
 		port = uGetDlgItemText(m_hWnd, IDC_PORT);
 		networkIF = uGetDlgItemText(m_hWnd, IDC_NETWORKINTERFACE);
-		return root != g_LibraryRootPath || port != g_Port || networkIF != g_NetworkInterface;
+		CCheckBox cb(GetDlgItem(IDC_AUTOSTART));
+		autostart = cb.GetCheck() != BST_CHECKED;
+		return root != g_LibraryRootPath || port != g_Port || networkIF != g_NetworkInterface || autostart == g_Autostart;
 	}
 
 	void ConfigDialogInstance::OnChange()
 	{
 		_callback->on_state_changed();
-	}
-
-	LRESULT ConfigDialogInstance::OnRefresh(WORD wNotifyCode, WORD wID, HWND hWnd, BOOL& handled)
-	{
-		return 0;
 	}
 
 	t_uint32 ConfigDialogInstance::get_state()
@@ -84,14 +71,17 @@ namespace foo_mpdsrv
 		g_Port = port.get_ptr();
 		pfc::string interf = uGetDlgItemText(m_hWnd, IDC_NETWORKINTERFACE);
 		g_NetworkInterface = interf.get_ptr();
+		CCheckBox cb(GetDlgItem(IDC_AUTOSTART));
+		g_Autostart = cb.GetCheck() != BST_UNCHECKED;
 		// Error check
 	}
 
 	void ConfigDialogInstance::reset()
 	{
 		g_Port = g_DefaultPort;
-		g_NetworkInterface = "0.0.0.0";
-		g_LibraryRootPath = "C:/Stuff";
+		g_NetworkInterface = g_DefaultAddress;
+		g_LibraryRootPath = g_DefaultLibraryPath;
+		g_Autostart = g_DefaultAutostart;
 		ShowSavedValues();
 	}
 
@@ -100,6 +90,8 @@ namespace foo_mpdsrv
 		uSetDlgItemText(m_hWnd, IDC_PORT, g_Port);
 		uSetDlgItemText(m_hWnd, IDC_NETWORKINTERFACE, g_NetworkInterface);
 		uSetDlgItemText(m_hWnd, IDC_LIBRARYPATH, g_LibraryRootPath);
+		CCheckBox cb(GetDlgItem(IDC_AUTOSTART));
+		cb.SetCheck(g_Autostart!=false?BST_CHECKED:BST_UNCHECKED);
 	}
 
 	void ConfigDialogInstance::OnChangedItem(UINT wNotifyCode, int ctrl, HWND hWnd)
