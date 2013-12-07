@@ -10,13 +10,19 @@ namespace foo_mpdsrv
 	static const GUID PortGUID = { 0xdf1912c4, 0x4a98, 0x4ec9, { 0x9e, 0xa9, 0x5d, 0x8f, 0xdb, 0xaa, 0x40, 0x73 } };
 	// {7D1F4907-9C66-43EB-8CCF-6D65ED9350C3}
 	static const GUID IdGUID = { 0x7d1f4907, 0x9c66, 0x43eb, { 0x8c, 0xcf, 0x6d, 0x65, 0xed, 0x93, 0x50, 0xc3 } };
+	// {9857F261-DCE9-45DD-9318-64CD3BD37A48}
+	static const GUID AutostartGUID = { 0x9857f261, 0xdce9, 0x45dd, { 0x93, 0x18, 0x64, 0xcd, 0x3b, 0xd3, 0x7a, 0x48 } };
 
 	cfg_string g_LibraryRootPath(RootPathGUID, "");
 	cfg_string g_NetworkInterface(NetworkInterfaceGUID, "0.0.0.0");
 	cfg_string g_Port(PortGUID, g_DefaultPort);
 	cfg_int_t<idtype> g_MaxId(IdGUID, 1);
+	cfg_bool g_Autostart(AutostartGUID, true);
 
-	const char* const g_DefaultPort = "6600";	
+	const char* const g_DefaultAddress = "0.0.0.0";
+	const char* const g_DefaultPort = "6600";
+	const char* const g_DefaultLibraryPath = "C:\\Stuff";
 	const char* const g_IdString = "MPDID";
 	const char* const g_MPDGreeting = "OK MPD 0.12.2\n";
+	const bool        g_DefaultAutostart = true;
 }
