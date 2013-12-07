@@ -22,6 +22,7 @@ namespace foo_mpdsrv
 			COMMAND_HANDLER_EX(IDC_PORT, EN_CHANGE, OnChangedItem)
 			COMMAND_HANDLER_EX(IDC_NETWORKINTERFACE, EN_CHANGE, OnChangedItem)
 			COMMAND_HANDLER_EX(IDC_LIBRARYPATH, EN_CHANGE, OnChangedItem)
+			COMMAND_HANDLER_EX(IDC_AUTOSTART, BN_CLICKED, OnChangedItem)
 		END_MSG_MAP()
 
 		explicit ConfigDialogInstance(preferences_page_callback::ptr callback);
