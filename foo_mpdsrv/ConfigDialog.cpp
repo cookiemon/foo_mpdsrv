@@ -56,7 +56,8 @@ namespace foo_mpdsrv
 		pfc::string port;
 		root = uGetDlgItemText(m_hWnd, IDC_LIBRARYPATH);
 		port = uGetDlgItemText(m_hWnd, IDC_PORT);
-		return root != g_LibraryRootPath || port != g_Port;
+		networkIF = uGetDlgItemText(m_hWnd, IDC_NETWORKINTERFACE);
+		return root != g_LibraryRootPath || port != g_Port || networkIF != g_NetworkInterface;
 	}
 
 	void ConfigDialogInstance::OnChange()
@@ -77,14 +78,12 @@ namespace foo_mpdsrv
 
 	void ConfigDialogInstance::apply()
 	{
-		DoDataExchange(DDX_SAVE);
-		pfc::string str;
-		BOOL retval;
-		pfc::string port;
-		str = uGetDlgItemText(m_hWnd, IDC_LIBRARYPATH);
-		g_LibraryRootPath = str.get_ptr();
-		port = uGetDlgItemText(m_hWnd, IDC_PORT);
+		pfc::string libPath = uGetDlgItemText(m_hWnd, IDC_LIBRARYPATH);
+		g_LibraryRootPath = libPath.get_ptr();
+		pfc::string port = uGetDlgItemText(m_hWnd, IDC_PORT);
 		g_Port = port.get_ptr();
+		pfc::string interf = uGetDlgItemText(m_hWnd, IDC_NETWORKINTERFACE);
+		g_NetworkInterface = interf.get_ptr();
 		// Error check
 	}
 
@@ -98,12 +97,14 @@ namespace foo_mpdsrv
 
 	void ConfigDialogInstance::ShowSavedValues()
 	{
-		MultiByteToWideChar(CP_UTF8, 0, g_LibraryRootPath.get_ptr(), -1, _libPath, sizeof(_libPath)/sizeof(*_libPath));
-		//MultiByteToWideChar(CP_UTF8, 0, g_Port.get_ptr(), -1, _port, sizeof(_libPath)/sizeof(*_libPath));
-		_port = 6600;
-		MultiByteToWideChar(CP_UTF8, 0, g_NetworkInterface.get_ptr(), -1, _interface, sizeof(_interface)/sizeof(*_interface));
-		//uSetDlgItemText(m_hWnd, IDC_LIBRARYPATH, g_LibraryRootPath);
-		//uSetDlgItemText(m_hWnd, IDC_PORT, g_Port);
-		DoDataExchange(FALSE);
+		uSetDlgItemText(m_hWnd, IDC_PORT, g_Port);
+		uSetDlgItemText(m_hWnd, IDC_NETWORKINTERFACE, g_NetworkInterface);
+		uSetDlgItemText(m_hWnd, IDC_LIBRARYPATH, g_LibraryRootPath);
+	}
+
+	void ConfigDialogInstance::OnChangedItem(UINT wNotifyCode, int ctrl, HWND hWnd)
+	{
+		OnChange();
+		SetMsgHandled(FALSE);
 	}
 }
