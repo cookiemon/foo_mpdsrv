@@ -162,6 +162,11 @@ namespace foo_mpdsrv
 				{
 					listener->RefreshConnection(g_NetworkInterface, g_Port);
 				}
+				else
+				{
+					listener.reset(new ConnectionListener());
+					listener->StartListening(g_NetworkInterface, g_Port);
+				}
 				break;
 			case cmd_library:
 				{
