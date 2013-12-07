@@ -97,6 +97,26 @@ namespace foo_mpdsrv
 			}
 		}
 
+		bool get_display(t_uint32 idx, pfc::string_base& out, t_uint32& flags)
+		{
+			get_name(idx, out);
+			switch(idx)
+			{
+			case cmd_connect:
+				flags = listener.get() != NULL ? flag_disabled:0;
+				break;
+			case cmd_disconnect:
+				flags = listener.get() == NULL ? flag_disabled:0;
+				break;
+			case cmd_reconnect:
+			case cmd_library:
+				break;
+			default:
+				uBugCheck();
+			}
+			return true;
+		}
+
 		bool get_description(t_uint32 idx, pfc::string_base& out)
 		{
 			switch(idx)
@@ -128,7 +148,6 @@ namespace foo_mpdsrv
 			{
 			case cmd_connect:
 				listener.reset(new ConnectionListener());
-				//listener = new ConnectionListener(_T("0.0.0.0"), _T("6600"));
 				listener->StartListening(g_NetworkInterface, g_Port);
 				break;
 			case cmd_disconnect:
