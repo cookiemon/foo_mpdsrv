@@ -21,8 +21,8 @@ namespace foo_mpdsrv
 		void SendStatus();
 		void SendStats();
 		void SendSongMetadata(metadb_handle_ptr song);
-		void MessageSender::GetSongMetadataString(std::stringstream& out, metadb_handle_ptr& song, const file_info& fi);
-		void MessageSender::GetSongMetadataString(std::stringstream& out, metadb_handle_ptr& song);
+		void MessageSender::GetSongMetadataString(std::string& out, metadb_handle_ptr& song, const file_info& fi);
+		void MessageSender::GetSongMetadataString(std::string& out, metadb_handle_ptr& song);
 		void SendPlaylistPath(size_t idx);
 		void SendPath(pfc::string8 name);
 		//void SendFilename(metadb_handle_ptr song);

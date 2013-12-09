@@ -41,29 +41,36 @@ namespace foo_mpdsrv
 
 	void MessageSender::SendSongMetadata(metadb_handle_ptr song)
 	{
-		std::stringstream str;
+		std::string str;
 		GetSongMetadataString(str, song);
-		SendAnswer(str.str());
+		SendAnswer(str);
 	}
 
-	void MessageSender::GetSongMetadataString(std::stringstream& out, metadb_handle_ptr& song)
+	void MessageSender::GetSongMetadataString(std::string& out, metadb_handle_ptr& song)
 	{
 		file_info_const_impl fi;
 		song->get_info(fi);
 		GetSongMetadataString(out, song, fi);
 	}
 
-	void MessageSender::GetSongMetadataString(std::stringstream& out, metadb_handle_ptr& song, const file_info& fi)
+	void MessageSender::GetSongMetadataString(std::string& out, metadb_handle_ptr& song, const file_info& fi)
 	{
+		out.reserve(512);
 		static_api_ptr_t<library_manager> lib;
 		pfc::string8 path;
 		if(lib->get_relative_path(song, path))
 		{
 			path.replace_char('\\', '/');
-			out << "file: " << path.get_ptr() << "\n";
+			out.append("file: ");
+			out.append(path.get_ptr());
+			out.append("\n");
 		}
-
-		out << "Time: " << static_cast<int>(fi.get_length()) << "\n";
+		Converter<int, std::string> intToStr;
+		std::string tmp;
+		intToStr(static_cast<int>(fi.get_length()), tmp);
+		out.append("Time: ");
+		out.append(tmp);
+		out.append("\n");
 		
 		t_size numMeta = fi.meta_get_count();
 		for(t_size i = 0; i < numMeta; ++i)
@@ -77,7 +84,10 @@ namespace foo_mpdsrv
 			{
 				pfc::string8 value = fi.meta_enum_value(i, k);
 				value.replace_nontext_chars(' ');
-				out << key.get_ptr() << ": " << value << "\n";
+				out.append(key.get_ptr());
+				out.append(": ");
+				out.append(value);
+				out.append("\n");
 			}
 		}
 		t_size numInfo = fi.info_get_count();
@@ -88,7 +98,10 @@ namespace foo_mpdsrv
 			{
 				pfc::string8 value = fi.info_enum_value(i);
 				value.replace_nontext_chars(' ');
-				out << key.get_ptr() << ": " << value << "\n";
+				out.append(key.get_ptr());
+				out.append(": ");
+				out.append(value);
+				out.append("\n");
 			}
 		}
 	}
@@ -105,16 +118,25 @@ namespace foo_mpdsrv
 		{
 			try
 			{
-				std::stringstream str;
+				std::string songData;
+				std::string pos;
+				std::string id;
+				Converter<t_size, std::string> intToStr;
+				intToStr((i - numNotFound), pos);
 				{
 					FooMetadbHandlePtrLock lock(items[i]);
 					const file_info* fi;
 					items[i]->get_info_locked(fi);
-					GetSongMetadataString(str, items[i], *fi);
-					str << "Pos: " << (i - numNotFound) << "\n";
-					str << "Id: " << LibraryConsistencyCheck::GetId(items[i], *fi) << "\n";
+					GetSongMetadataString(songData, items[i], *fi);
+					intToStr(LibraryConsistencyCheck::GetId(items[i], *fi), id);
 				}
-				SendAnswer(str.str());
+				songData.append("Pos: ");
+				songData.append(pos);
+				songData.append("\n");
+				songData.append("Id: ");
+				songData.append(id);
+				songData.append("\n");
+				SendAnswer(songData);
 			}
 			catch(foobar2000_io::exception_io_not_found& e)
 			{
