@@ -334,6 +334,7 @@ namespace foo_mpdsrv
 
 	bool MessageSender::SendBytes(const char* buf, int numBytes)
 	{
+		if(_sock == static_cast<SOCKET>(SOCKET_ERROR)) { return false; }
 		if(numBytes == 0) { return true; }
 
 		WaitForSocket();
