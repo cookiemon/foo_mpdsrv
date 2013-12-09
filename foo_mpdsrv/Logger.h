@@ -156,4 +156,11 @@ namespace foo_mpdsrv
 	};
 }
 
+template<typename T>
+inline foo_mpdsrv::Logger& operator<<(foo_mpdsrv::Logger& log, T val)
+{
+	log.Log(val);
+	return log;
+}
+
 #endif

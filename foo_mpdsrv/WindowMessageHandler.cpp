@@ -23,17 +23,10 @@ namespace foo_mpdsrv
 						auto& newHandler = _handlers.insert(MessageHandlerStoragePair(newClient.GetId(), std::move(newClient)));
 #ifdef FOO_MPDSRV_THREADED
 						newHandler.first->second.StartThread();
-						Logger log(Logger::FINEST);
 						SOCKET sock = newHandler.first->second.GetId();
 						bool isValid = newHandler.first->second.IsValid();
 						bool isActive = newHandler.first->second.IsThreadActive();
-						log.Log("Started thread for Socket ");
-						log.Log(sock);
-						log.Log("(Valid: ");
-						log.Log(isValid);
-						log.Log(",Active:");
-						log.Log(isActive);
-						log.Log(")\n");
+						Logger(Logger::FINEST) << "Started thread for Socket " << sock << "(Valid: " << isValid << ",Active:" << isActive << ")";
 #endif
 					}
 				}
@@ -50,8 +43,7 @@ namespace foo_mpdsrv
 				else
 				{
 					int err = WSAGetLastError();
-					Logger log(Logger::SEVERE);
-					log.LogWinError("Could not read from network socket", err);
+					Logger(Logger::SEVERE).LogWinError("Could not read from network socket", err);
 				}
 				break;
 			}

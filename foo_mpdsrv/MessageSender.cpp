@@ -329,25 +329,20 @@ namespace foo_mpdsrv
 			int lastError = WSAGetLastError();
 			if(lastError != WSAEWOULDBLOCK)
 			{
-				Logger log(Logger::SEVERE);
-				log.LogWinError("Could not send message", lastError);
+				Logger(Logger::SEVERE).LogWinError("Could not send message", lastError);
 				return false;
 			}
 			else
 			{
-				Logger log(Logger::SEVERE);
-				log.Log("send returned WSAEWOULDBLOCK");
+				Logger(Logger::SEVERE) << "send returned WSAEWOULDBLOCK";
 			}
 		}
 		else if(numBytes != bytesSend)
 		{
-			Logger log(Logger::SEVERE);
-			log.Log("Not all bytes were sent");
+			Logger(Logger::SEVERE) << "Not all bytes were sent";
 			return false;
 		}
-		Logger log(Logger::FINEST);
-		log.Log("O: ");
-		log.Write(buf, numBytes);
+		Logger(Logger::FINEST).Log("O: ").Write(buf, numBytes);
 		return true;
 	}
 
@@ -361,8 +356,7 @@ namespace foo_mpdsrv
 		if(lastError == SOCKET_ERROR)
 		{
 			lastError = WSAGetLastError();
-			Logger log(Logger::SEVERE);
-			log.LogWinError("Could not select socket", lastError);
+			Logger(Logger::SEVERE).LogWinError("Could not select socket", lastError);
 		}
 	}
 

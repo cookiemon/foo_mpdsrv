@@ -16,8 +16,7 @@ namespace foo_mpdsrv
 			_lastError = WSAStartup(MAKEWORD(2, 0), &_socketInformation);
 			if(_lastError != ERROR_SUCCESS)
 			{
-				Logger log(Logger::SEVERE);
-				log.LogWinError("Could not initialise WSA", _lastError);
+				Logger(Logger::SEVERE).LogWinError("Could not initialise WSA", _lastError);
 				return;
 			}
 		}
@@ -31,8 +30,7 @@ namespace foo_mpdsrv
 			_lastError = WSACleanup();
 			if(_lastError != ERROR_SUCCESS)
 			{
-				Logger log(Logger::SEVERE);
-				log.LogWinError("Could not cleanup WSA", _lastError);
+				Logger(Logger::SEVERE).LogWinError("Could not cleanup WSA", _lastError);
 			}
 		}
 	}
@@ -50,8 +48,7 @@ namespace foo_mpdsrv
 		_lastError = getaddrinfo(addr.get_ptr(), port.get_ptr(), &hints, &_addressinfo);
 		if(_lastError != ERROR_SUCCESS)
 		{
-			Logger log(Logger::SEVERE);
-			log.LogWinError("Could not retrieve address information", _lastError);
+			Logger(Logger::SEVERE).LogWinError("Could not retrieve address information", _lastError);
 			return;
 		}
 	}
@@ -123,9 +120,7 @@ namespace foo_mpdsrv
 		if(!SUCCEEDED(hr))
 		{
 			DWORD err = GetLastError();
-			Logger log(Logger::SEVERE);
-			log.Log("Could not retrieve network adapters: ");
-			log.Log(GetErrString(err));
+			Logger(Logger::SEVERE).LogWinError("Could not retrieve network adapters", err);
 			return std::vector<tstring>();
 		}
 		IP_ADAPTER_ADDRESSES* cur = addr;

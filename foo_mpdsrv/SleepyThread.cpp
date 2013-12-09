@@ -40,16 +40,12 @@ namespace foo_mpdsrv
 			run = run && !_abort;
 			if(run)
 			{
-				Logger log(Logger::FINEST);
-				log.Log("Thread received some work.");
+				Logger(Logger::FINEST) << "Thread received some work.";
 				run = WakeProc(p_abort);
 			}
 		}
 		p_abort.check();
-		Logger log(Logger::DBG);
-		log.Log("Event ");
-		log.Log(_event.get());
-		log.Log(" canceled.");
+		Logger(Logger::DBG) << "Event " << _event.get() << " canceled.";
 		return 0;
 	}
 }

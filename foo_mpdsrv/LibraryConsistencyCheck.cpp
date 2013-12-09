@@ -21,9 +21,7 @@ namespace foo_mpdsrv
 
 		if(!hasIdTag || newId != id)
 		{
-			Logger log(Logger::DBG);
-			log.Log("Duplicate or missing id: ");
-			log.Log(p_item->get_path());
+			Logger(Logger::DBG) << "Duplicate or missing id: " << p_item->get_path();
 			SetId(p_item, fi, newId);
 		}
 
@@ -83,8 +81,7 @@ namespace foo_mpdsrv
 		}
 		catch(foobar2000_io::exception_io_sharing_violation& e)
 		{
-			Logger log(Logger::DBG);
-			log.Log("Checked file is in use. Trying playback stop.");
+			Logger(Logger::DBG) << "Checked file is in use. Trying playback stop.";
 			RequestFromMT req;
 			req.DoCallback([](){
 				static_api_ptr_t<playback_control>()->stop();

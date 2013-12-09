@@ -26,28 +26,22 @@ namespace foo_mpdsrv
 		{
 			if(i->ai_family == PF_INET || i->ai_family == PF_INET6)
 			{
-				Logger log(Logger::DBG);
-				log.Log("Binding interface: ");
-				log.Log(addr);
+				Logger(Logger::DBG) << "Binding interface: " << addr;
 				SOCKET fd = BindSocket(i);
 				if(fd != SOCKET_ERROR)
 					_socketfds.push_back(fd);
 				else
-					log.Log("Bind failed\n");
+					Logger(Logger::SEVERE) << "Binding failed";
 			}
 		}
 		if(_socketfds.empty())
 		{
-			Logger log(Logger::SEVERE);
-			log.LogWinError("Could not bind to socket", _lastError);
+			Logger(Logger::SEVERE).LogWinError("Could not bind to socket", _lastError);
 			return;
 		}
 		else
 		{
-			Logger log(Logger::DBG);
-			log.Log("Bound to ");
-			log.Log(_socketfds.size());
-			log.Log(" addresses");
+			Logger(Logger::DBG) << "Bound to " << _socketfds.size() << " addresses";
 		}
 	}
 
@@ -93,15 +87,13 @@ namespace foo_mpdsrv
 				else
 				{
 					_lastError = WSAGetLastError();
-					Logger log(Logger::SEVERE);
-					log.LogWinError("Listen to socket failed", _lastError);
+					Logger(Logger::SEVERE).LogWinError("Listen to socket failed", _lastError);
 				}
 			}
 			else
 			{
 				_lastError = WSAGetLastError();
-				Logger log(Logger::SEVERE);
-				log.LogWinError("Could not request receive notifications", _lastError);
+				Logger(Logger::SEVERE).LogWinError("Could not request receive notifications", _lastError);
 			}
 		}
 

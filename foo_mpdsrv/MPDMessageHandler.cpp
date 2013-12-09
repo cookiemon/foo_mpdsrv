@@ -63,12 +63,9 @@ namespace foo_mpdsrv
 
 	void MPDMessageHandler::HandleBuffer()
 	{
-		Logger log(Logger::FINEST);
-		log.Log("==>Handling Buffer\n");
 		std::string nextCommand;
 		std::getline(_buffer, nextCommand);
-		log.Log("==>Next Command: ");
-		log.Log(nextCommand);
+		Logger(Logger::FINEST) << "Next Command: " << nextCommand;
 		if(!_lastIncomplete.empty())
 		{
 			nextCommand = _lastIncomplete + nextCommand;
@@ -77,9 +74,7 @@ namespace foo_mpdsrv
 		while(_buffer.good())
 		{
 			{
-				Logger log(Logger::DBG);
-				log.Log("I: ");
-				log.Log(nextCommand);
+				Logger(Logger::DBG) << "I: " << nextCommand;
 			}
 			if(!_accumulateList)
 			{
@@ -128,17 +123,14 @@ namespace foo_mpdsrv
 
 	bool MPDMessageHandler::WakeProc(abort_callback &abort)
 	{
-		Logger log(Logger::FINEST);
-		log.Log("==>MPDMessageHandler got pushed buffer\n");
+		Logger(Logger::FINEST) << "==>MPDMessageHandler got pushed buffer";
 		try
 		{
 			HandleBuffer();
 		}
 		catch(const std::exception& e)
 		{
-			Logger log(Logger::SEVERE);
-			log.Log("Caught exception: ");
-			log.Log(e.what());
+			Logger(Logger::SEVERE) << "Caught exception: " << e;
 		}
 		return true;
 	}
@@ -155,9 +147,7 @@ namespace foo_mpdsrv
 			action->second(_sender, cmd);
 		else
 		{
-			Logger log(Logger::DBG);
-			log.Log("Command not found: ");
-			log.Log(message);
+			Logger(Logger::DBG) << "Command not found: " << message;
 		}
 	}
 	
