@@ -21,6 +21,7 @@ namespace foo_mpdsrv
 
 	void ConnectionListener::StartListening(const pfc::stringp& addr, const pfc::stringp& port)
 	{
+		TRACK_CALL_TEXT("ConnectionListener::StartListening()");
 		_networkInfo.RequestAddressInfo(addr, port);
 		for(ADDRINFOA* i = _networkInfo.GetAddressInfo(); i != NULL; i = i->ai_next)
 		{
@@ -31,7 +32,7 @@ namespace foo_mpdsrv
 				if(fd != SOCKET_ERROR)
 					_socketfds.push_back(fd);
 				else
-					Logger(Logger::SEVERE) << "Binding failed";
+					Logger(Logger::SEVERE).LogWinError("Binding failed", _lastError);
 			}
 		}
 		if(_socketfds.empty())
@@ -47,6 +48,7 @@ namespace foo_mpdsrv
 
 	void ConnectionListener::StopListening()
 	{
+		TRACK_CALL_TEXT("ConnectionListener::StopListening()");
 		for(size_t i = _socketfds.size() - 1; !_socketfds.empty(); --i)
 		{
 			UnbindSocket(_socketfds[i]);
@@ -56,16 +58,19 @@ namespace foo_mpdsrv
 
 	void ConnectionListener::RefreshConnection(const pfc::stringp& addr, const pfc::stringp& port)
 	{
+		TRACK_CALL_TEXT("ConnectionListener::RefreshConnection()");
 		StopListening();
 		StartListening(addr, port);
 	}
 
 	SOCKET ConnectionListener::BindSocket(ADDRINFOA* addressinfo)
 	{
+		TRACK_CALL_TEXT("ConnectionListener::BindSocket()");
 		SOCKET socketfd = socket(addressinfo->ai_family, addressinfo->ai_socktype, addressinfo->ai_protocol);
 		if(socketfd == SOCKET_ERROR)
 		{
 			_lastError = WSAGetLastError();
+			Logger(Logger::SEVERE).LogWinError("Socket creation failed", _lastError);
 			return static_cast<SOCKET>(SOCKET_ERROR);
 		}
 
@@ -75,8 +80,7 @@ namespace foo_mpdsrv
 		{
 			_lastError = WSAAsyncSelect(socketfd, core_api::get_main_window(),
 				WindowMessageHandler::HandledMessage,
-				(FD_ACCEPT | FD_CLOSE | FD_READ)
-				);
+				(FD_ACCEPT | FD_CLOSE | FD_READ));
 			if(_lastError == ERROR_SUCCESS)
 			{
 				_lastError = listen(socketfd, 3);
@@ -87,23 +91,27 @@ namespace foo_mpdsrv
 				else
 				{
 					_lastError = WSAGetLastError();
-					Logger(Logger::SEVERE).LogWinError("Listen to socket failed", _lastError);
+					Logger(Logger::SEVERE).LogWinError("Socket listen failed", _lastError);
 				}
 			}
 			else
 			{
 				_lastError = WSAGetLastError();
-				Logger(Logger::SEVERE).LogWinError("Could not request receive notifications", _lastError);
+				Logger(Logger::SEVERE).LogWinError("Socket Asyncselect failed", _lastError);
 			}
 		}
-
-		_lastError = WSAGetLastError();
+		else
+		{
+			_lastError = WSAGetLastError();
+			Logger(Logger::SEVERE).LogWinError("Socket bind failed", _lastError);
+		}
 		UnbindSocket(socketfd);
 		return static_cast<SOCKET>(SOCKET_ERROR);
 	}
 
 	void ConnectionListener::UnbindSocket(SOCKET sock)
 	{
+		TRACK_CALL_TEXT("ConnectionListener::UnbindSocket()");
 		if(sock != static_cast<SOCKET>(SOCKET_ERROR))
 			closesocket(sock);
 	}

@@ -63,6 +63,7 @@ namespace foo_mpdsrv
 
 	void HandlePlay(MessageSender&, std::vector<std::string>& args)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::HandlePlay()");
 		PlaylistSelector pl = DefaultPlaylistSelector();
 		SongSelector song;
 		if(args.size() >= 2)
@@ -74,6 +75,7 @@ namespace foo_mpdsrv
 
 	void HandlePlayId(MessageSender&, std::vector<std::string>& args)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::HandlePlayId()");
 		PlaylistSelector pl = DefaultPlaylistSelector();
 		idtype songId;
 		ConvertTo(args[1], songId);
@@ -90,6 +92,7 @@ namespace foo_mpdsrv
 
 	void HandlePause(MessageSender&, std::vector<std::string>& args)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::HandlePause()");
 		if(args.size() < 2)
 			SimpleApiCall(&playback_control::toggle_pause);
 		else
@@ -98,6 +101,7 @@ namespace foo_mpdsrv
 
 	void ChangePlaybackState(PlayState::PlayState newState)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::ChangePlaybackState()");
 		static_api_ptr_t<playback_control> control;
 		switch(newState)
 		{
@@ -118,26 +122,31 @@ namespace foo_mpdsrv
 
 	void HandleStop(MessageSender&, std::vector<std::string>&)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::HandleStop()");
 		SimpleApiMTCall(&playback_control::stop);
 	}
 
 	void HandleNext(MessageSender&, std::vector<std::string>&)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::HandleNext()");
 		SimpleApiMTCall(&playback_control::start, playback_control::track_command_next, false);
 	}
 
 	void HandlePrevious(MessageSender&, std::vector<std::string>&)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::HandlePrevious()");
 		SimpleApiMTCall(&playback_control::start, playback_control::track_command_prev, false);
 	}
 
 	void HandleStatus(MessageSender& caller, std::vector<std::string>&)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::HandleStatus()");
 		caller.SendStatus();
 	}
 
 	void HandleVolume(MessageSender& caller, std::vector<std::string>& args)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::HandleVolume()");
 		static_api_ptr_t<playback_control> man;
 		if(args.size() < 2)
 			throw CommandException(ACK_ERROR_ARG, "Command needs argument");

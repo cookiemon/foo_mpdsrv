@@ -21,6 +21,7 @@ namespace foo_mpdsrv
 	public:
 		void on_init()
 		{
+			TRACK_CALL_TEXT("init::on_init()");
 			if(g_Autostart)
 			{
 				listener.reset(new ConnectionListener());
@@ -29,6 +30,7 @@ namespace foo_mpdsrv
 		}
 		void on_quit()
 		{
+			TRACK_CALL_TEXT("init::on_quit()");
 			if(listener.get())
 			{
 				listener->StopListening();
@@ -57,6 +59,7 @@ namespace foo_mpdsrv
 
 		GUID get_command(t_uint32 idx)
 		{
+			TRACK_CALL_TEXT("mainmenu_command_connect::get_command()");
 			// {44E8D987-5CFE-4A7C-8FC4-CD02AA053F7A}
 			static const GUID guid_cmd_connect = { 0x44e8d987, 0x5cfe, 0x4a7c, { 0x8f, 0xc4, 0xcd, 0x2, 0xaa, 0x5, 0x3f, 0x7a } };
 			// {84036C44-97E6-4F76-BEA7-FE5DFCCD5B32}
@@ -84,6 +87,7 @@ namespace foo_mpdsrv
 
 		void get_name(t_uint32 idx, pfc::string_base& out)
 		{
+			TRACK_CALL_TEXT("mainmenu_command_connect::get_name()");
 			switch(idx)
 			{
 			case cmd_connect:
@@ -109,6 +113,7 @@ namespace foo_mpdsrv
 
 		bool get_display(t_uint32 idx, pfc::string_base& out, t_uint32& flags)
 		{
+			TRACK_CALL_TEXT("mainmenu_command_connect::get_display()");
 			get_name(idx, out);
 			switch(idx)
 			{
@@ -129,6 +134,7 @@ namespace foo_mpdsrv
 
 		bool get_description(t_uint32 idx, pfc::string_base& out)
 		{
+			TRACK_CALL_TEXT("mainmenu_command_connect::get_description()");
 			switch(idx)
 			{
 			case cmd_connect:
@@ -154,6 +160,7 @@ namespace foo_mpdsrv
 
 		virtual void execute(t_uint32 idx,service_ptr_t<service_base> unused)
 		{
+			TRACK_CALL_TEXT("mainmenu_command_connect::execute()");
 			switch(idx)
 			{
 			case cmd_connect:
@@ -198,7 +205,7 @@ namespace foo_mpdsrv
 	const GUID mainmenu_command_connect::_command_guid = { 0xa53abd2f, 0x1bfa, 0x4d63, { 0xb1, 0xea, 0xa6, 0x54, 0x29, 0xa4, 0x41, 0x98 } };
 
 	mainmenu_group_popup_factory mainmenugroup(mainmenu_command_connect::_command_guid,
-		mainmenu_groups::file, static_cast<t_uint32>(mainmenu_commands::sort_priority_dontcare), "Foootastisch");
+		mainmenu_groups::file, static_cast<t_uint32>(mainmenu_commands::sort_priority_dontcare), "MPD Server");
 
 	mainmenu_commands_factory_t<mainmenu_command_connect> mainmenucommand;
 

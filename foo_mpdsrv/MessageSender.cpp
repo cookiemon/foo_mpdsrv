@@ -13,6 +13,7 @@ namespace foo_mpdsrv
 {
 	MessageSender::MessageSender(SOCKET connection)
 	{
+		TRACK_CALL_TEXT("MessageSender::MessageSender()");
 		_sock = accept(connection, NULL, NULL);
 		if(IsValid())
 		{
@@ -22,12 +23,14 @@ namespace foo_mpdsrv
 
 	MessageSender::MessageSender(MessageSender&& right)
 	{
+		TRACK_CALL_TEXT("MessageSender::MessageSender(&&)");
 		_sock = right._sock;
 		right._sock = static_cast<SOCKET>(SOCKET_ERROR);
 	}
 
 	MessageSender::~MessageSender()
 	{
+		TRACK_CALL_TEXT("MessageSender::~MessageSender()");
 		if(_sock != SOCKET_ERROR)
 		{
 			closesocket(_sock);
@@ -36,11 +39,13 @@ namespace foo_mpdsrv
 
 	void MessageSender::SendWelcome()
 	{
+		TRACK_CALL_TEXT("MessageSender::SendWelcome()");
 		SendAnswer("OK MPD 0.12.0\n");
 	}
 
 	void MessageSender::SendSongMetadata(metadb_handle_ptr song)
 	{
+		TRACK_CALL_TEXT("MessageSender::SendSongMetadata()");
 		std::string str;
 		GetSongMetadataString(str, song);
 		SendAnswer(str);
@@ -108,6 +113,7 @@ namespace foo_mpdsrv
 
 	void MessageSender::SendPlaylist(t_size playlist)
 	{
+		TRACK_CALL_TEXT("MessageSender::SendPlaylist()");
 		static_api_ptr_t<playlist_manager> man;
 		pfc::list_t<metadb_handle_ptr> items;
 		RequestFromMT req;
@@ -147,6 +153,7 @@ namespace foo_mpdsrv
 	
 	void MessageSender::SendPath(pfc::string8 name)
 	{
+		TRACK_CALL_TEXT("MessageSender::SendPath()");
 		pfc::string8 msg;
 		name.replace_char('\\', '/');
 		if(name.ends_with('/'))
@@ -163,6 +170,7 @@ namespace foo_mpdsrv
 
 	void MessageSender::SendPlaylistPath(size_t idx)
 	{
+		TRACK_CALL_TEXT("MessageSender::SendPlaylistPath()");
 		pfc::string8 name;
 		RequestFromMT req;
 		req.RequestPlaylistName(idx, name);
@@ -174,6 +182,7 @@ namespace foo_mpdsrv
 
 	void MessageSender::SendStatus()
 	{
+		TRACK_CALL_TEXT("MessageSender::SendStatus()");
 		/*TODO:
 		xfade: <int seconds> (crossfade in seconds)
 		bitrate: <int bitrate> (instantaneous bitrate in kbps)
@@ -248,6 +257,7 @@ namespace foo_mpdsrv
 
 	void MessageSender::SendStats()
 	{
+		TRACK_CALL_TEXT("MessageSender::SendStats()");
 		/*
 		TODO:
 		artists: number of artists
@@ -264,27 +274,32 @@ namespace foo_mpdsrv
 	
 	void MessageSender::SendOutputs()
 	{
+		TRACK_CALL_TEXT("MessageSender::SendOutputs()");
 		SendAnswer("outputid: 0\noutputname: foobar\noutputenabled: 1\n");
 	}
 
 	void MessageSender::SendOk()
 	{
+		TRACK_CALL_TEXT("MessageSender::SendOk()");
 		SendAnswer("OK\n");
 	}
 
 	void MessageSender::SendListOk()
 	{
+		TRACK_CALL_TEXT("MessageSender::SendListOk()");
 		SendAnswer("list_OK\n");
 	}
 
 	void MessageSender::CloseConnection()
 	{
+		TRACK_CALL_TEXT("MessageSender::CloseConnection()");
 		closesocket(_sock);
 		_sock = SOCKET_ERROR;
 	}
 
 	void MessageSender::SendError(unsigned int line, const std::string& command, const CommandException& err)
 	{
+		TRACK_CALL_TEXT("MessageSender::SendError()");
 		std::stringstream ans;
 		ans << "ACK [" << err.GetError() << '@' << line << "] {" << command << "} " << err.what() << '\n';
 		SendAnswer(ans.str());
@@ -365,6 +380,7 @@ namespace foo_mpdsrv
 
 	PfcStdStringDict initDict()
 	{
+		TRACK_CALL_TEXT("MessageSender::initDict()");
 		PfcStdStringDict dict;
 		dict.insert(PfcStdStringPair("file", "file"));
 		dict.insert(PfcStdStringPair("artist", "Artist"));

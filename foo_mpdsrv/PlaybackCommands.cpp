@@ -134,6 +134,7 @@ namespace foo_mpdsrv
 
 	void PlayItem(PlaylistSelector pl, SongSelector song)
 	{
+		TRACK_CALL_TEXT("PlayItem()");
 		RequestFromMT req;
 		req.DoCallback([=](){ PlayItemMTCallback(pl, song); });
 	}

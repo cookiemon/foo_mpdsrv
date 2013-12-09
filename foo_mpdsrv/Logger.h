@@ -32,7 +32,7 @@ namespace foo_mpdsrv
 	{
 #ifndef FOO_MPDSRV_DISABLE_LOG
 	private:
-		static const unsigned int _minLvl = 0;
+		static const unsigned int _minLvl = 10;
 		unsigned int _logLvl;
 #ifdef FOO_MPDSRV_LOGFILE
 		std::ofstream _str;

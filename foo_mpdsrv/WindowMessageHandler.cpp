@@ -11,6 +11,7 @@ namespace foo_mpdsrv
 
 	bool WindowMessageHandler::pretranslate_message(MSG* message)
 	{
+		TRACK_CALL_TEXT("WindowMessageHandler::pretranslate_message()");
 		if(message->message == HandledMessage)
 		{
 			switch(WSAGETSELECTEVENT(message->lParam))

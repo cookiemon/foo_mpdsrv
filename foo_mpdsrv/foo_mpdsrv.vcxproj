@@ -91,7 +91,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;FOO_MPDSRV_EXPORTS;FOO_MPDSRV_THREADED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;FOO_MPDSRV_EXPORTS;FOO_MPDSRV_THREADED;FOO_MPDSRV_TIMER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ShowIncludes>false</ShowIncludes>
@@ -183,6 +183,7 @@
     <ClInclude Include="RequestFromMT.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SleepyThread.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="WindowMessageHandler.h" />
   </ItemGroup>
   <ItemGroup>

@@ -11,6 +11,7 @@ namespace foo_mpdsrv
 
 	NetworkInformation::NetworkInformation() : _addressinfo(NULL)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::NetworkInformation()");
 		if(_counter.getCount() == 1)
 		{
 			_lastError = WSAStartup(MAKEWORD(2, 0), &_socketInformation);
@@ -24,6 +25,7 @@ namespace foo_mpdsrv
 
 	NetworkInformation::~NetworkInformation()
 	{
+		TRACK_CALL_TEXT("NetworkInformation::~NetworkInformation()");
 		FreeAddressInfo();
 		if(_counter.getCount() == 1)
 		{
@@ -37,6 +39,7 @@ namespace foo_mpdsrv
 
 	void NetworkInformation::RequestAddressInfo(const pfc::stringp& addr, const pfc::stringp& port)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::RequestAddressInfo()");
 		if(_addressinfo != NULL) { FreeAddressInfo(); }
 
 		ADDRINFOA hints;
@@ -55,6 +58,7 @@ namespace foo_mpdsrv
 
 	void NetworkInformation::FreeAddressInfo()
 	{
+		TRACK_CALL_TEXT("NetworkInformation::FreeAddressInfo()");
 		if(_addressinfo != NULL)
 			freeaddrinfo(_addressinfo);
 		_addressinfo = NULL;
@@ -62,6 +66,7 @@ namespace foo_mpdsrv
 
 	bool NetworkInformation::IsAddressValid(pfc::string8 addr)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::IsAddressValis()");
 		union
 		{
 			sockaddr_in ipv4;
@@ -87,6 +92,7 @@ namespace foo_mpdsrv
 
 	bool NetworkInformation::IsPortValid(const pfc::stringp& port)
 	{
+		TRACK_CALL_TEXT("NetworkInformation::IsPortValid()");
 		char* end;
 		long portNum = strtol(port.get_ptr(), &end, 10);
 		if(*end != '\0' || port.length() == 0 || portNum > std::numeric_limits<unsigned short>::max())
@@ -97,11 +103,13 @@ namespace foo_mpdsrv
 	
 	ADDRINFOA* NetworkInformation::GetAddressInfo()
 	{
+		TRACK_CALL_TEXT("NetworkInformation::GetAddressInfo()");
 		return _addressinfo;
 	}
 
 	std::vector<tstring> NetworkInformation::GetValidInterfaces()
 	{
+		TRACK_CALL_TEXT("NetworkInformation::GetValidInterfaces()");
 		HRESULT hr;
 		ULONG size = 0;
 		

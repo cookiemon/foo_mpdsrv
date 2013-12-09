@@ -14,16 +14,19 @@ namespace foo_mpdsrv
 	
 	void HandleStats(MessageSender& caller, std::vector<std::string>&)
 	{
+		TRACK_CALL_TEXT("HandleStats()");
 		caller.SendStats();
 	}
 
 	void HandleOutputs(MessageSender& caller, std::vector<std::string>&)
 	{
+		TRACK_CALL_TEXT("HandleOutputs()");
 		caller.SendOutputs();
 	}
 
 	void HandleCurrentsong(MessageSender& caller, std::vector<std::string>&)
 	{
+		TRACK_CALL_TEXT("HandleCurrentsong()");
 		metadb_handle_ptr playing;
 		RequestFromMT req;
 		if(req.RequestNowPlaying(playing))
@@ -47,6 +50,7 @@ namespace foo_mpdsrv
 
 	void HandleLsinfo(MessageSender& caller, std::vector<std::string>& args)
 	{
+		TRACK_CALL_TEXT("HandleLsinfo()");
 		if(args.size() < 2)
 			args.push_back("/");
 		pfc::string8 path = args[1].c_str();
@@ -91,6 +95,7 @@ namespace foo_mpdsrv
 
 	void FilterListByPath(pfc::list_t<metadb_handle_ptr>& out, const pfc::string8& start)
 	{
+		TRACK_CALL_TEXT("FilterListByPath()");
 		int num = 0;
 		bool intervalStarted = false;
 		static_api_ptr_t<library_manager> lib;

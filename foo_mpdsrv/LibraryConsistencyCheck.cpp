@@ -112,6 +112,7 @@ namespace foo_mpdsrv
 		
 	void LibraryConsistencyWorker::run(threaded_process_status& p_status, abort_callback& p_abort)
 	{
+		TRACK_CALL_TEXT("LibraryConsistencyWorker::run()");
 		t_size numLib = libItems.get_count();
 		for(t_size i = 0; i < libItems.get_count(); ++i)
 		{

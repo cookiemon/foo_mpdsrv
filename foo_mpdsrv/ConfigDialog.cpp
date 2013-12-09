@@ -33,7 +33,7 @@ namespace foo_mpdsrv
 
 	BOOL ConfigDialogInstance::OnInit(CWindow wnd, LPARAM lParam)
 	{
-
+		TRACK_CALL_TEXT("ConfigDialogInstance::OnInit()");
 		ShowSavedValues();
 		return FALSE;
 	}
@@ -65,6 +65,7 @@ namespace foo_mpdsrv
 
 	void ConfigDialogInstance::apply()
 	{
+		TRACK_CALL_TEXT("ConfigDialogInstance::apply()");
 		pfc::string libPath = uGetDlgItemText(m_hWnd, IDC_LIBRARYPATH);
 		g_LibraryRootPath = libPath.get_ptr();
 		pfc::string port = uGetDlgItemText(m_hWnd, IDC_PORT);
@@ -78,6 +79,7 @@ namespace foo_mpdsrv
 
 	void ConfigDialogInstance::reset()
 	{
+		TRACK_CALL_TEXT("ConfigDialogInstance::reset()");
 		g_Port = g_DefaultPort;
 		g_NetworkInterface = g_DefaultAddress;
 		g_LibraryRootPath = g_DefaultLibraryPath;
@@ -87,6 +89,7 @@ namespace foo_mpdsrv
 
 	void ConfigDialogInstance::ShowSavedValues()
 	{
+		TRACK_CALL_TEXT("ConfigDialogInstance::ShowSavedValues()");
 		uSetDlgItemText(m_hWnd, IDC_PORT, g_Port);
 		uSetDlgItemText(m_hWnd, IDC_NETWORKINTERFACE, g_NetworkInterface);
 		uSetDlgItemText(m_hWnd, IDC_LIBRARYPATH, g_LibraryRootPath);
@@ -96,6 +99,7 @@ namespace foo_mpdsrv
 
 	void ConfigDialogInstance::OnChangedItem(UINT wNotifyCode, int ctrl, HWND hWnd)
 	{
+		TRACK_CALL_TEXT("ConfigDialogInstance::OnChangedItem()");
 		OnChange();
 		SetMsgHandled(FALSE);
 	}

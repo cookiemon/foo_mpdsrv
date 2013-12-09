@@ -7,6 +7,7 @@
 #include "PlaylistCommandHandler.h"
 #include "GeneralCommandHandler.h"
 #include "DataRequestHandler.h"
+#include "Timer.h"
 #include <algorithm>
 #include <functional>
 #include <fstream>
@@ -17,12 +18,14 @@ namespace foo_mpdsrv
 	MPDMessageHandler::MPDMessageHandler(MPDMessageHandler&& right) : _sender(std::move(right._sender)),
 		_actions(std::move(right._actions))
 	{
+		TRACK_CALL_TEXT("MPDMessageHandler::MPDMessageHandler(&&)");
 		_accumulateList = right._accumulateList;
 		_list_OK = right._list_OK;
 	}
 
 	MPDMessageHandler::MPDMessageHandler(SOCKET connection) : _accumulateList(false), _list_OK(false), _sender(connection)
 	{
+		TRACK_CALL_TEXT("MPDMessageHandler::MPDMessageHandler(socket)");
 		_actions.insert(std::make_pair("ping", &HandlePing));
 		_actions.insert(std::make_pair("pause", &HandlePause));
 		_actions.insert(std::make_pair("play", &HandlePlay));
@@ -45,6 +48,7 @@ namespace foo_mpdsrv
 
 	MPDMessageHandler::~MPDMessageHandler()
 	{
+		TRACK_CALL_TEXT("MPDMessageHandler::~MPDMessageHandler()");
 #ifdef FOO_MPDSRV_THREADED
 		ExitThread();
 		WaitTillThreadDone();
@@ -53,6 +57,7 @@ namespace foo_mpdsrv
 	
 	void MPDMessageHandler::PushBuffer(const char* buf, size_t numBytes)
 	{
+		TRACK_CALL_TEXT("MPDMessageHandler::PushBuffer()");
 		_buffer.write(buf, numBytes);
 #ifdef FOO_MPDSRV_THREADED
 		Wake();
@@ -63,6 +68,7 @@ namespace foo_mpdsrv
 
 	void MPDMessageHandler::HandleBuffer()
 	{
+		TRACK_CALL_TEXT("MPDMessageHandler::HandleBuffer()");
 		std::string nextCommand;
 		std::getline(_buffer, nextCommand);
 		Logger(Logger::FINEST) << "Next Command: " << nextCommand;
@@ -123,6 +129,7 @@ namespace foo_mpdsrv
 
 	bool MPDMessageHandler::WakeProc(abort_callback &abort)
 	{
+		TRACK_CALL_TEXT("MPDMessageHandler::WakeProc()");
 		Logger(Logger::FINEST) << "==>MPDMessageHandler got pushed buffer";
 		try
 		{
@@ -137,6 +144,8 @@ namespace foo_mpdsrv
 
 	void MPDMessageHandler::ExecuteCommand(std::string message)
 	{
+		TRACK_CALL_TEXT("MPDMessageHandler::ExecuteCommand()");
+		Timer time;
 		std::vector<std::string> cmd = SplitCommand(message);
 		if(cmd.empty())
 			return;
@@ -149,10 +158,12 @@ namespace foo_mpdsrv
 		{
 			Logger(Logger::DBG) << "Command not found: " << message;
 		}
+		time.LogDifference("Command " + cmd[0]);
 	}
 	
 	void MPDMessageHandler::ExecuteCommandQueue(bool respondAfterEvery)
 	{
+		TRACK_CALL_TEXT("MPDMessageHandler::ExecuteCommandQueue()");
 		size_t i = 0;
 		try
 		{
@@ -184,6 +195,7 @@ namespace foo_mpdsrv
 
 	std::vector<std::string> MPDMessageHandler::SplitCommand(const std::string& cmd)
 	{
+		TRACK_CALL_TEXT("MPDMessageHandler::SplitCommand()");
 		std::vector<std::string> ret;
 		size_t start = 0;
 		size_t length = cmd.length();
