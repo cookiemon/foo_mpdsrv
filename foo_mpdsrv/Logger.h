@@ -3,9 +3,11 @@
 
 #include <fstream>
 
+inline pfc::string_base& operator<<(pfc::string_base& str, DWORD val) { str.add_string(pfc::format_uint(val)); return str; }
+inline pfc::string_base& operator<<(pfc::string_base& str, HANDLE val) { str.add_string(pfc::format_uint(reinterpret_cast<uintptr_t>(val))); return str; }
+
 namespace foo_mpdsrv
 {
-
 	inline std::string GetErrString(DWORD errNum)
 	{
 		LPSTR msg = NULL;
@@ -108,9 +110,7 @@ namespace foo_mpdsrv
 				_str << val;
 				_str.flush();
 #else
-				std::stringstream sstr;
-				sstr << val;
-				_csl << sstr.str().c_str();
+				_csl << val;
 #endif
 			}
 #endif
@@ -140,7 +140,7 @@ namespace foo_mpdsrv
 			Log(": (");
 			Log(errNum);
 			Log(") ");
-			Log(GetErrString);
+			Log(GetErrString(errNum));
 			return *this;
 		}
 
