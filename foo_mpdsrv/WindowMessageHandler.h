@@ -27,6 +27,10 @@ namespace foo_mpdsrv
 		WindowMessageHandler();
 
 		bool pretranslate_message(MSG* message);
+
+	private:
+		void ReceiveAndPush(SOCKET sock);
+		void AcceptNewClient(SOCKET sock);
 	};
 
 }
