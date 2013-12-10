@@ -127,7 +127,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;FOO_MPDSRV_EXPORTS;FOO_MPDSRV_THREADED;FOO_MPDSRV_DISABLE_LOG_no;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;FOO_MPDSRV_EXPORTS;FOO_MPDSRV_THREADED;FOO_MPDSRV_DISABLE_LOG_no;FOO_MPDSRV_TIMER_no;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <PreprocessToFile>false</PreprocessToFile>

@@ -4,7 +4,6 @@
 #include "common.h"
 #include "MessageSender.h"
 #include "SleepyThread.h"
-#include <sstream>
 #include <vector>
 #include <functional>
 #include <unordered_map>
@@ -19,16 +18,15 @@ namespace foo_mpdsrv
 #endif
 	{
 	private:
+		typedef std::vector<char> BufferType;
 		MessageSender _sender;
-		std::string _lastIncomplete;
-		std::stringstream _buffer;
-		bool _accumulateList;
-		bool _list_OK;
+		BufferType _buffer;
 		std::vector<std::string> _commandQueue;
 
 		typedef void(*Action)(MessageSender& caller, std::vector<std::string>&);
 		typedef std::unordered_map<std::string, Action> ActionMap;
 		ActionMap _actions;
+		void (MPDMessageHandler::*_activeHandleCommandRoutine)(const std::string& command);
 
 	private:
 		MPDMessageHandler();
@@ -50,10 +48,15 @@ namespace foo_mpdsrv
 		void Shutdown();
 
 	private:
-
 		void ExecuteCommand(std::string cmd);
-		void ExecuteCommandQueue(bool respondAfterEvery);
 		std::vector<std::string> SplitCommand(const std::string& cmd);
+
+		template<typename T>
+		void ExecuteCommandQueue(T CommandLoop);
+
+		void MPDMessageHandler::HandleCommandListActive(const std::string& cmd);
+		void MPDMessageHandler::HandleCommandListOkActive(const std::string& cmd);
+		void MPDMessageHandler::HandleCommandOnly(const std::string& cmd);
 	};
 
 }

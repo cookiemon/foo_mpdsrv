@@ -14,6 +14,9 @@
 #include <fstream>
 #pragma warning(pop)
 #include <string>
+#include <cctype>
+#include <functional>
+#include <algorithm>
 
 // For the sake of good!
 #undef NULL
@@ -106,6 +109,20 @@ namespace foo_mpdsrv
 	inline void ConvertTo(const T& in, U& out)
 	{
 		Converter<T, U>()(in, out);
+	}
+
+	inline void TrimLeft(std::string& str)
+	{
+		str.erase(str.begin(), std::find_if_not(str.begin(), str.end(), &isspace));
+	}
+	inline void TrimRight(std::string& str)
+	{
+		str.erase(std::find_if_not(str.rbegin(), str.rend(), &isspace).base(), str.end());
+	}
+	inline void Trim(std::string& str)
+	{
+		TrimRight(str);
+		TrimLeft(str);
 	}
 }
 

@@ -11,19 +11,19 @@
 #include <algorithm>
 #include <functional>
 #include <fstream>
+#include <string>
 #include <unordered_map>
 
 namespace foo_mpdsrv
 {
 	MPDMessageHandler::MPDMessageHandler(MPDMessageHandler&& right) : _sender(std::move(right._sender)),
-		_actions(std::move(right._actions))
+		_actions(std::move(right._actions)),
+		_activeHandleCommandRoutine(&MPDMessageHandler::HandleCommandOnly)
 	{
 		TRACK_CALL_TEXT("MPDMessageHandler::MPDMessageHandler(&&)");
-		_accumulateList = right._accumulateList;
-		_list_OK = right._list_OK;
 	}
 
-	MPDMessageHandler::MPDMessageHandler(SOCKET connection) : _accumulateList(false), _list_OK(false), _sender(connection)
+	MPDMessageHandler::MPDMessageHandler(SOCKET connection) : _sender(connection)
 	{
 		TRACK_CALL_TEXT("MPDMessageHandler::MPDMessageHandler(socket)");
 		_actions.insert(std::make_pair("ping", &HandlePing));
@@ -58,7 +58,7 @@ namespace foo_mpdsrv
 	void MPDMessageHandler::PushBuffer(const char* buf, size_t numBytes)
 	{
 		TRACK_CALL_TEXT("MPDMessageHandler::PushBuffer()");
-		_buffer.write(buf, numBytes);
+		_buffer.insert(_buffer.end(), buf, buf+numBytes);
 #ifdef FOO_MPDSRV_THREADED
 		Wake();
 #else
@@ -69,62 +69,88 @@ namespace foo_mpdsrv
 	void MPDMessageHandler::HandleBuffer()
 	{
 		TRACK_CALL_TEXT("MPDMessageHandler::HandleBuffer()");
-		std::string nextCommand;
-		std::getline(_buffer, nextCommand);
-		Logger(Logger::FINEST) << "Next Command: " << nextCommand;
-		if(!_lastIncomplete.empty())
+		BufferType::iterator newLine;
+		char newLineChars[] = { '\n', '\r' };
+		while((newLine = std::find_first_of(_buffer.begin(), _buffer.end(),
+											newLineChars, newLineChars + sizeof(newLineChars)))
+				!= _buffer.end())
 		{
-			nextCommand = _lastIncomplete + nextCommand;
-			_lastIncomplete.clear();
-		}
-		while(_buffer.good())
-		{
+			std::string nextCommand(_buffer.begin(), _buffer.end());
+			Trim(nextCommand);
+			_buffer.erase(_buffer.begin(), ++newLine);
+			if(nextCommand.empty())
+				continue;
 			{
 				Logger(Logger::DBG) << "I: " << nextCommand;
 			}
-			if(!_accumulateList)
-			{
-				if(strstartswithi(nextCommand, "command_list_begin"))
-				{
-					_accumulateList = true;
-					_list_OK = false;
-				}
-				else if(strstartswithi(nextCommand, "command_list_ok_begin"))
-				{
-					_accumulateList = true;
-					_list_OK = true;
-				}
-				else
-				{
-					try
-					{
-						size_t lastSpace = nextCommand.find_last_not_of(" \r\n\t");
-						if(lastSpace != std::string::npos)
-							nextCommand.erase(lastSpace+1);
-						ExecuteCommand(nextCommand);
-						_sender.SendOk();
-					}
-					catch(const CommandException& e)
-					{
-						_sender.SendError(0, nextCommand, e);
-					}
-				}
-			}
-			else
-			{
-				if(!strstartswithi(nextCommand, "command_list_end"))
-					_commandQueue.push_back(nextCommand);
-				else
-				{
-					ExecuteCommandQueue(_list_OK);
-				}
-			}
-			std::getline(_buffer, nextCommand);
+			(this->*_activeHandleCommandRoutine)(nextCommand);
 		}
-		_lastIncomplete = nextCommand;
-		_buffer.str("");
-		_buffer.seekg(nextCommand.size());
-		_buffer.clear();
+	}
+
+	template<typename T>
+	void MPDMessageHandler::ExecuteCommandQueue(T commandLoop)
+	{
+		TRACK_CALL_TEXT("MPDMessageHandler::ExecuteCommandQueue()");
+		size_t i = 0;
+		try
+		{
+			for(i = 0; i < _commandQueue.size(); ++i)
+				commandLoop(_commandQueue[i]);
+		}
+		catch(const CommandException& e)
+		{
+			_sender.SendError(i, _commandQueue[i], e);
+		}
+		_commandQueue.clear();
+	}
+
+	void MPDMessageHandler::HandleCommandListActive(const std::string& cmd)
+	{
+		if(!strstartswithi(cmd, "command_list_end"))
+			_commandQueue.push_back(cmd);
+		else
+		{
+			ExecuteCommandQueue([this](const std::string& cmd) {
+				ExecuteCommand(cmd);
+			});
+			_activeHandleCommandRoutine = &MPDMessageHandler::HandleCommandOnly;
+		}
+	}
+	void MPDMessageHandler::HandleCommandListOkActive(const std::string& cmd)
+	{
+		if(!strstartswithi(cmd, "command_list_end"))
+			_commandQueue.push_back(cmd);
+		else
+		{
+			ExecuteCommandQueue([this](const std::string& cmd) {
+				ExecuteCommand(cmd);
+				_sender.SendListOk();
+			});
+			_activeHandleCommandRoutine = &MPDMessageHandler::HandleCommandOnly;
+		}
+	}
+	void MPDMessageHandler::HandleCommandOnly(const std::string& cmd)
+	{
+		if(strstartswithi(cmd, "command_list_begin"))
+		{
+			_activeHandleCommandRoutine = &MPDMessageHandler::HandleCommandListActive;
+		}
+		else if(strstartswithi(cmd, "command_list_ok_begin"))
+		{
+			_activeHandleCommandRoutine = &MPDMessageHandler::HandleCommandListOkActive;
+		}
+		else
+		{
+			try
+			{
+				ExecuteCommand(cmd);
+				_sender.SendOk();
+			}
+			catch(const CommandException& e)
+			{
+				_sender.SendError(0, cmd, e);
+			}
+		}
 	}
 
 	bool MPDMessageHandler::WakeProc(abort_callback &abort)
@@ -147,8 +173,6 @@ namespace foo_mpdsrv
 		TRACK_CALL_TEXT("MPDMessageHandler::ExecuteCommand()");
 		Timer time;
 		std::vector<std::string> cmd = SplitCommand(message);
-		if(cmd.empty())
-			return;
 		std::transform(cmd[0].begin(), cmd[0].end(), cmd[0].begin(), tolower);
 
 		auto action = _actions.find(cmd[0]);
@@ -160,60 +184,24 @@ namespace foo_mpdsrv
 		}
 		time.LogDifference("Command " + cmd[0]);
 	}
-	
-	void MPDMessageHandler::ExecuteCommandQueue(bool respondAfterEvery)
-	{
-		TRACK_CALL_TEXT("MPDMessageHandler::ExecuteCommandQueue()");
-		size_t i = 0;
-		try
-		{
-			if(respondAfterEvery)
-			{
-				for(i = 0; i < _commandQueue.size(); ++i)
-				{
-					ExecuteCommand(_commandQueue[i]);
-					_sender.SendListOk();
-				}
-				_sender.SendOk();
-			}
-			else
-			{
-				for(size_t i = 0; i < _commandQueue.size(); ++i)
-				{
-					ExecuteCommand(_commandQueue[i]);
-				}
-				_sender.SendOk();
-			}
-		}
-		catch(const CommandException& e)
-		{
-			_sender.SendError(i, _commandQueue[i], e);
-		}
-		_commandQueue.clear();
-		_accumulateList = false;
-	}
 
 	std::vector<std::string> MPDMessageHandler::SplitCommand(const std::string& cmd)
 	{
+		assert(!cmd.empty());
 		TRACK_CALL_TEXT("MPDMessageHandler::SplitCommand()");
 		std::vector<std::string> ret;
-		size_t start = 0;
-		size_t length = cmd.length();
-		while(start < length && start != std::string::npos)
+		std::string::const_iterator start = cmd.begin();
+		std::string::const_iterator end = cmd.end();
+		while(start != end)
 		{
-			size_t end;
-			if(cmd[start] == '"')
-				end = cmd.find('\"', ++start);
+			std::string::const_iterator argEnd;
+			if(*start == '"')
+				argEnd = std::find(start + 1, end, '"');
 			else
-				end = cmd.find_first_of(" \t\r\n", start + 1);
+				argEnd = std::find_if(start + 1, end, &isspace);
 
-			ret.push_back(cmd.substr(start, end - start));
-				
-			if(end != std::string::npos)
-				start += end + 1;
-			else
-				start = std::string::npos;
-			start = cmd.find_first_not_of(" \t\r\n", start);
+			ret.push_back(std::string(start, argEnd));
+			start = std::find_if_not(argEnd + 1, end, &isspace);
 		}
 		return ret;
 	}
