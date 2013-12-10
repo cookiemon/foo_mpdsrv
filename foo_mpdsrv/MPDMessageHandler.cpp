@@ -69,22 +69,24 @@ namespace foo_mpdsrv
 	void MPDMessageHandler::HandleBuffer()
 	{
 		TRACK_CALL_TEXT("MPDMessageHandler::HandleBuffer()");
-		BufferType::iterator newLine;
 		char newLineChars[] = { '\n', '\r' };
-		while((newLine = std::find_first_of(_buffer.begin(), _buffer.end(),
+		BufferType::iterator begin = _buffer.begin();
+		BufferType::iterator end = _buffer.end();
+		BufferType::iterator newLine;
+		while((newLine = std::find_first_of(begin, end,
 											newLineChars, newLineChars + sizeof(newLineChars)))
-				!= _buffer.end())
+				!= end)
 		{
-			std::string nextCommand(_buffer.begin(), _buffer.end());
+			std::string nextCommand(begin, newLine);
 			Trim(nextCommand);
-			_buffer.erase(_buffer.begin(), ++newLine);
-			if(nextCommand.empty())
-				continue;
+			begin = newLine + 1;
+			if(!nextCommand.empty())
 			{
 				Logger(Logger::DBG) << "I: " << nextCommand;
+				(this->*_activeHandleCommandRoutine)(nextCommand);
 			}
-			(this->*_activeHandleCommandRoutine)(nextCommand);
 		}
+		_buffer.erase(_buffer.begin(), begin);
 	}
 
 	template<typename T>
