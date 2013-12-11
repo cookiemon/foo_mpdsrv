@@ -4,34 +4,14 @@
 #include "PlaybackCommands.h"
 #include "RequestFromMT.h"
 #include "common.h"
+#include "RequestFromMT.h"
 #include <string>
-
 
 namespace foo_mpdsrv
 {
 
 	// Local functions
 	void ChangePlaybackState(PlayState::PlayState newState);
-
-	template<class T>
-	void SimpleApiCall(void (T::*func)())
-	{
-		static_api_ptr_t<T> api;
-		((api.get_ptr())->*func)();
-	}
-	template<class T, typename U>
-	void SimpleApiCall(void (T::*func)(U), U firstArg)
-	{
-		static_api_ptr_t<T> api;
-		((api.get_ptr())->*func)(firstArg);
-	}
-	template<class T, typename U, typename V>
-	void SimpleApiCall(void (T::*func)(U, V), U firstArg, V secondArg)
-	{
-		static_api_ptr_t<T> api;
-		((api.get_ptr())->*func)(firstArg, secondArg);
-	}
-
 	
 	template<class T>
 	void SimpleApiMTCall(void (T::*func)())

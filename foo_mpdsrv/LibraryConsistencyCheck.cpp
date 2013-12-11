@@ -83,10 +83,8 @@ namespace foo_mpdsrv
 		{
 			Logger(Logger::DBG) << "Checked file is in use. Trying playback stop.";
 			RequestFromMT req;
-			req.DoCallback([](){
-				static_api_ptr_t<playback_control>()->stop();
-			});
-				
+			req.DoApiCall<playback_control>(&playback_control::stop);
+
 			fi.meta_set(g_IdString, pfc::toString(newId).get_ptr());
 			service_ptr_t<input_info_writer> instance;
 			input_entry::g_open_for_info_write(instance, NULL, p_item->get_path(), abort_callback_dummy());
@@ -94,10 +92,8 @@ namespace foo_mpdsrv
 			instance->commit(abort_callback_dummy());
 			if(g_MaxId <= newId)
 				g_MaxId = newId+1;
-				
-			req.DoCallback([](){
-				static_api_ptr_t<playback_control>()->start();
-			});
+
+			req.DoApiCall<playback_control>(&playback_control::start, playback_control::track_command_play, false);
 		}
 	}
 	LibraryConsistencyWorker::LibraryConsistencyWorker() : _ctr(0)

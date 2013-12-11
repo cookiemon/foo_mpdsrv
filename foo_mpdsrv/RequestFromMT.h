@@ -6,6 +6,25 @@
 
 namespace foo_mpdsrv
 {
+	template<class T>
+	void SimpleApiCall(void (T::*func)())
+	{
+		static_api_ptr_t<T> api;
+		((api.get_ptr())->*func)();
+	}
+	template<class T, typename U>
+	void SimpleApiCall(void (T::*func)(U), U firstArg)
+	{
+		static_api_ptr_t<T> api;
+		((api.get_ptr())->*func)(firstArg);
+	}
+	template<class T, typename U, typename V>
+	void SimpleApiCall(void (T::*func)(U, V), U firstArg, V secondArg)
+	{
+		static_api_ptr_t<T> api;
+		((api.get_ptr())->*func)(firstArg, secondArg);
+	}
+
 	class RequestFromMT
 	{
 	private:
@@ -141,6 +160,27 @@ namespace foo_mpdsrv
 #else
 			func();
 #endif
+		}
+		template<class T>
+		void DoApiCall(void (T::*func)())
+		{
+			DoCallback([&]() {
+				SimpleApiCall<T>(func);
+			});
+		}
+		template<class T, typename U>
+		void DoApiCall(void (T::*func)(U), U arg1)
+		{
+			DoCallback([&]() {
+				SimpleApiCall<T, U>(func, arg1);
+			});
+		}
+		template<class T, typename U, typename V>
+		void DoApiCall(void (T::*func)(U, V), U arg1, V arg2)
+		{
+			DoCallback([&]() {
+				SimpleApiCall<T, U, V>(func, arg1, arg2);
+			});
 		}
 
 	private:
