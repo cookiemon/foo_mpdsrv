@@ -9,6 +9,11 @@
 
 namespace foo_mpdsrv
 {
+	/**
+	 * Timer for performance measurement
+	 * Deactivated if not compiled with FOO_MPDSRV_TIMER
+	 * @author Cookiemon
+	 */
 	class Timer
 	{
 	private:
@@ -16,18 +21,31 @@ namespace foo_mpdsrv
 		DWORD _begin;
 #endif
 	public:
+		/**
+		 * Creates a timer initialized to the current time
+		 * @author Cookiemon
+		 */
 		Timer()
 #ifdef FOO_MPDSRV_TIMER
 			: _begin(timeGetTime())
 #endif
 		{
 		}
+		/**
+		 * Sets the timer to the current time
+		 * @author Cookiemon
+		 */
 		void StartTimer()
 		{
 #ifdef FOO_MPDSRV_TIMER
 			_begin = timeGetTime();
 #endif
 		}
+		/**
+		 * Returns the difference between the stored timer and now
+		 * @author Cookiemon
+		 * @return Timedifference in msec
+		 */
 		DWORD GetDifference()
 		{
 #ifdef FOO_MPDSRV_TIMER
@@ -36,6 +54,12 @@ namespace foo_mpdsrv
 			return 0;
 #endif
 		}
+		/**
+		 * Logs the time difference with the given message
+		 * Used loglevel is DBG
+		 * @author Cookiemon
+		 * @param msg Message to write to log
+		 */
 		void LogDifference(const std::string& msg)
 		{
 #ifdef FOO_MPDSRV_TIMER

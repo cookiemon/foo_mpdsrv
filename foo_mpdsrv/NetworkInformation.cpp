@@ -5,14 +5,12 @@
 
 namespace foo_mpdsrv
 {
-
 	WSAData NetworkInformation::_socketInformation;
-	const pfc::string8 NetworkInformation::_defaultPort("6600");
 
 	NetworkInformation::NetworkInformation() : _addressinfo(NULL)
 	{
 		TRACK_CALL_TEXT("NetworkInformation::NetworkInformation()");
-		if(_counter.getCount() == 1)
+		if(_counter.GetCount() == 1)
 		{
 			_lastError = WSAStartup(MAKEWORD(2, 0), &_socketInformation);
 			if(_lastError != ERROR_SUCCESS)
@@ -27,7 +25,7 @@ namespace foo_mpdsrv
 	{
 		TRACK_CALL_TEXT("NetworkInformation::~NetworkInformation()");
 		FreeAddressInfo();
-		if(_counter.getCount() == 1)
+		if(_counter.GetCount() == 1)
 		{
 			_lastError = WSACleanup();
 			if(_lastError != ERROR_SUCCESS)
@@ -94,6 +92,7 @@ namespace foo_mpdsrv
 	{
 		TRACK_CALL_TEXT("NetworkInformation::IsPortValid()");
 		char* end;
+		// TODO: Improve. Port range is 16 bit
 		long portNum = strtol(port.get_ptr(), &end, 10);
 		if(*end != '\0' || port.length() == 0 || portNum > std::numeric_limits<unsigned short>::max())
 			return false;
@@ -105,39 +104,5 @@ namespace foo_mpdsrv
 	{
 		TRACK_CALL_TEXT("NetworkInformation::GetAddressInfo()");
 		return _addressinfo;
-	}
-
-	std::vector<tstring> NetworkInformation::GetValidInterfaces()
-	{
-		TRACK_CALL_TEXT("NetworkInformation::GetValidInterfaces()");
-		HRESULT hr;
-		ULONG size = 0;
-		
-		GetAdaptersAddresses(AF_UNSPEC, 0, NULL, NULL, &size);
-		if(size == 0)
-			return std::vector<tstring>();
-		
-		IP_ADAPTER_ADDRESSES* addr = NULL;
-		do
-		{
-			if(addr != NULL)
-				delete[] addr;
-			addr = new IP_ADAPTER_ADDRESSES[size];
-			hr = GetAdaptersAddresses(AF_UNSPEC, 0, NULL, addr, &size);
-		} while(hr == ERROR_BUFFER_OVERFLOW);
-		if(!SUCCEEDED(hr))
-		{
-			DWORD err = GetLastError();
-			Logger(Logger::SEVERE).LogWinError("Could not retrieve network adapters", err);
-			return std::vector<tstring>();
-		}
-		IP_ADAPTER_ADDRESSES* cur = addr;
-		std::vector<tstring> retVal;
-		do
-		{
-			retVal.push_back(cur->FriendlyName);
-			cur = cur->Next;
-		} while(cur->Next != NULL);
-		return retVal;
 	}
 }

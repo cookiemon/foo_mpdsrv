@@ -1,4 +1,5 @@
 #include "PlaybackCommandHandler.h"
+#include "Converter.h"
 #include "MessageSender.h"
 #include "LibraryConsistencyCheck.h"
 #include "PlaybackCommands.h"
@@ -9,37 +10,8 @@
 
 namespace foo_mpdsrv
 {
-
 	// Local functions
-	void ChangePlaybackState(PlayState::PlayState newState);
-	
-	template<class T>
-	void SimpleApiMTCall(void (T::*func)())
-	{
-		RequestFromMT req;
-		req.DoCallback([&](){
-			static_api_ptr_t<T> api;
-			((api.get_ptr())->*func)();
-		});
-	}
-	template<class T, typename U>
-	void SimpleApiMTCall(void (T::*func)(U), U firstArg)
-	{
-		RequestFromMT req;
-		req.DoCallback([&](){
-			static_api_ptr_t<T> api;
-			((api.get_ptr())->*func)(firstArg);
-		});
-	}
-	template<class T, typename U, typename V>
-	void SimpleApiMTCall(void (T::*func)(U, V), U firstArg, V secondArg)
-	{
-		RequestFromMT req;
-		req.DoCallback([&](){
-			static_api_ptr_t<T> api;
-			((api.get_ptr())->*func)(firstArg, secondArg);
-		});
-	}
+	static void ChangePlaybackState(PlayState::PlayState newState);
 
 	void HandlePlay(MessageSender&, std::vector<std::string>& args)
 	{
@@ -73,13 +45,14 @@ namespace foo_mpdsrv
 	void HandlePause(MessageSender&, std::vector<std::string>& args)
 	{
 		TRACK_CALL_TEXT("NetworkInformation::HandlePause()");
+		static_api_ptr_t<playback_control> pbc;
 		if(args.size() < 2)
-			SimpleApiCall(&playback_control::toggle_pause);
+			pbc->toggle_pause();
 		else
-			SimpleApiCall(&playback_control::pause, (args[1] != "0"));
+			pbc->pause(args[1] != "0");
 	}
 
-	void ChangePlaybackState(PlayState::PlayState newState)
+	static void ChangePlaybackState(PlayState::PlayState newState)
 	{
 		TRACK_CALL_TEXT("NetworkInformation::ChangePlaybackState()");
 		static_api_ptr_t<playback_control> control;
@@ -103,19 +76,22 @@ namespace foo_mpdsrv
 	void HandleStop(MessageSender&, std::vector<std::string>&)
 	{
 		TRACK_CALL_TEXT("NetworkInformation::HandleStop()");
-		SimpleApiMTCall(&playback_control::stop);
+		RequestFromMT mtreq;
+		mtreq.DoApiCall(&playback_control::stop);
 	}
 
 	void HandleNext(MessageSender&, std::vector<std::string>&)
 	{
 		TRACK_CALL_TEXT("NetworkInformation::HandleNext()");
-		SimpleApiMTCall(&playback_control::start, playback_control::track_command_next, false);
+		RequestFromMT mtreq;
+		mtreq.DoApiCall(&playback_control::start, playback_control::track_command_next, false);
 	}
 
 	void HandlePrevious(MessageSender&, std::vector<std::string>&)
 	{
 		TRACK_CALL_TEXT("NetworkInformation::HandlePrevious()");
-		SimpleApiMTCall(&playback_control::start, playback_control::track_command_prev, false);
+		RequestFromMT mtreq;
+		mtreq.DoApiCall(&playback_control::start, playback_control::track_command_prev, false);
 	}
 
 	void HandleStatus(MessageSender& caller, std::vector<std::string>&)
@@ -135,6 +111,7 @@ namespace foo_mpdsrv
 		if(vol < 0 || 100 < vol)
 			throw CommandException(ACK_ERROR_ARG, "Argument out of range");
 		vol -= 100;
-		SimpleApiMTCall(&playback_control::set_volume, vol);
+		RequestFromMT mtreq;
+		mtreq.DoApiCall(&playback_control::set_volume, vol);
 	}
 }

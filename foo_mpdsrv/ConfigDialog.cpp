@@ -52,15 +52,10 @@ namespace foo_mpdsrv
 		return root != g_LibraryRootPath || port != g_Port || networkIF != g_NetworkInterface || autostart == g_Autostart;
 	}
 
-	void ConfigDialogInstance::OnChange()
-	{
-		_callback->on_state_changed();
-	}
-
 	t_uint32 ConfigDialogInstance::get_state()
 	{
 		return preferences_state::resettable
-			| (HasChanged()?preferences_state::changed:0);
+			| (HasChanged() ? preferences_state::changed : 0);
 	}
 
 	void ConfigDialogInstance::apply()
@@ -94,13 +89,13 @@ namespace foo_mpdsrv
 		uSetDlgItemText(m_hWnd, IDC_NETWORKINTERFACE, g_NetworkInterface);
 		uSetDlgItemText(m_hWnd, IDC_LIBRARYPATH, g_LibraryRootPath);
 		CCheckBox cb(GetDlgItem(IDC_AUTOSTART));
-		cb.SetCheck(g_Autostart!=false?BST_CHECKED:BST_UNCHECKED);
+		cb.SetCheck(g_Autostart != false ? BST_CHECKED : BST_UNCHECKED);
 	}
 
 	void ConfigDialogInstance::OnChangedItem(UINT wNotifyCode, int ctrl, HWND hWnd)
 	{
 		TRACK_CALL_TEXT("ConfigDialogInstance::OnChangedItem()");
-		OnChange();
+		_callback->on_state_changed();
 		SetMsgHandled(FALSE);
 	}
 }

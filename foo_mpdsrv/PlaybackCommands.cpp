@@ -1,4 +1,5 @@
 #include "PlaybackCommands.h"
+#include "Converter.h"
 #include "LibraryConsistencyCheck.h"
 #include "RequestFromMT.h"
 
@@ -26,13 +27,12 @@ namespace foo_mpdsrv
 		ConvertTo(songNum, _songNum);
 	}
 
-
 	SongIdSelector::HandleIdSearch::HandleIdSearch(idtype searchedItem)
 	{
 		_searchedItem = searchedItem;
 		_pos = std::numeric_limits<t_size>::max();
 	}
-	bool SongIdSelector::HandleIdSearch::on_item(t_size p_index,const metadb_handle_ptr & p_location,bool b_selected)
+	bool SongIdSelector::HandleIdSearch::on_item(t_size p_index, const metadb_handle_ptr & p_location, bool b_selected)
 	{
 		if(LibraryConsistencyCheck::GetId(p_location) == _searchedItem)
 		{
@@ -73,12 +73,6 @@ namespace foo_mpdsrv
 	{
 		RequestFromMT req;
 		req.RequestPlayingPlaylist(_plNum);
-		if(_plNum == std::numeric_limits<t_size>::max())
-			req.RequestActivePlaylist(_plNum);
-		/*static_api_ptr_t<playlist_manager> man;
-		_plNum = man->get_playing_playlist();
-		if(_plNum == std::numeric_limits<t_size>::max())
-			_plNum = man->get_active_playlist();*/
 	}
 
 	PlaylistNameSelector::PlaylistNameSelector(const char* name)

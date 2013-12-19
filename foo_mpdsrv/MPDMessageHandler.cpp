@@ -1,8 +1,10 @@
 // Known bugs:
 //  * Volume on a logarithmic scale
+//  * _buffer must be made thread-safe
 
 #include "MPDMessageHandler.h"
 #include "common.h"
+#include "StringUtil.h"
 #include "PlaybackCommandHandler.h"
 #include "PlaylistCommandHandler.h"
 #include "GeneralCommandHandler.h"
@@ -58,7 +60,7 @@ namespace foo_mpdsrv
 	void MPDMessageHandler::PushBuffer(const char* buf, size_t numBytes)
 	{
 		TRACK_CALL_TEXT("MPDMessageHandler::PushBuffer()");
-		_buffer.insert(_buffer.end(), buf, buf+numBytes);
+		_buffer.insert(_buffer.end(), buf, buf + numBytes);
 #ifdef FOO_MPDSRV_THREADED
 		Wake();
 #else
@@ -73,8 +75,7 @@ namespace foo_mpdsrv
 		BufferType::iterator begin = _buffer.begin();
 		BufferType::iterator end = _buffer.end();
 		BufferType::iterator newLine;
-		while((newLine = std::find_first_of(begin, end,
-											newLineChars, newLineChars + sizeof(newLineChars)))
+		while((newLine = std::find_first_of(begin, end, newLineChars, newLineChars + sizeof(newLineChars)))
 				!= end)
 		{
 			std::string nextCommand(begin, newLine);
@@ -108,19 +109,20 @@ namespace foo_mpdsrv
 
 	void MPDMessageHandler::HandleCommandListActive(const std::string& cmd)
 	{
-		if(!strstartswithi(cmd, "command_list_end"))
+		if(!StrStartsWithLC(cmd, "command_list_end"))
 			_commandQueue.push_back(cmd);
 		else
 		{
 			ExecuteCommandQueue([this](const std::string& cmd) {
 				ExecuteCommand(cmd);
 			});
+			_sender.SendOk();
 			_activeHandleCommandRoutine = &MPDMessageHandler::HandleCommandOnly;
 		}
 	}
 	void MPDMessageHandler::HandleCommandListOkActive(const std::string& cmd)
 	{
-		if(!strstartswithi(cmd, "command_list_end"))
+		if(!StrStartsWithLC(cmd, "command_list_end"))
 			_commandQueue.push_back(cmd);
 		else
 		{
@@ -133,11 +135,11 @@ namespace foo_mpdsrv
 	}
 	void MPDMessageHandler::HandleCommandOnly(const std::string& cmd)
 	{
-		if(strstartswithi(cmd, "command_list_begin"))
+		if(StrStartsWithLC(cmd, "command_list_begin"))
 		{
 			_activeHandleCommandRoutine = &MPDMessageHandler::HandleCommandListActive;
 		}
-		else if(strstartswithi(cmd, "command_list_ok_begin"))
+		else if(StrStartsWithLC(cmd, "command_list_ok_begin"))
 		{
 			_activeHandleCommandRoutine = &MPDMessageHandler::HandleCommandListOkActive;
 		}
@@ -198,12 +200,18 @@ namespace foo_mpdsrv
 		{
 			std::string::const_iterator argEnd;
 			if(*start == '"')
+			{
 				argEnd = std::find(start + 1, end, '"');
+				ret.push_back(std::string(start, argEnd));
+				argEnd += 1;
+			}
 			else
+			{
 				argEnd = std::find_if(start + 1, end, &isspace);
+				ret.push_back(std::string(start, argEnd));
+			}
 
-			ret.push_back(std::string(start, argEnd));
-			start = std::find_if_not(argEnd + 1, end, &isspace);
+			start = std::find_if_not(argEnd, end, &isspace);
 		}
 		return ret;
 	}

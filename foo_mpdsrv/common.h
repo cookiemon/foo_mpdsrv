@@ -27,7 +27,13 @@
 
 namespace foo_mpdsrv
 {
+	/**
+	 * Name of this plugin
+	 */
 	extern const char* PLUGINNAME;
+	/**
+	 * Name of this plugin as wide char
+	 */
 	extern const wchar_t* PLUGINNAMEW;
 
 	#ifdef FOO_MPDSRV_EXPORTS
@@ -35,95 +41,6 @@ namespace foo_mpdsrv
 	#else
 	#define FOO_MPDSRV_API __declspec(dllimport)
 	#endif
-
-	#ifdef UNICODE
-	typedef std::wstring tstring;
-	#else
-	typedef std::string string;
-	#endif
-
-	template<class T, typename CountType = unsigned int>
-	class RefCounter
-	{
-	private:
-		static CountType _count;
-	private:
-		RefCounter(const RefCounter&);
-		RefCounter& operator=(const RefCounter&);
-	public:
-		RefCounter() { _count += 1; }
-		~RefCounter() { _count -= 1; }
-		CountType getCount() { return _count; }
-	};
-	template<class T, typename CountType>
-	CountType RefCounter<T,CountType>::_count = 0;
-
-	inline bool strstartswithi(const char* left, const char* right)
-	{
-		unsigned int len = strlen(right);
-		if(len > strlen(left))
-			return false;
-		
-		const char* end = left + len;
-		while(left != end)
-		{
-			if(tolower(*left) != tolower(*right))
-				return false;
-			left += 1;
-			right += 1;
-		}
-		return true;
-	}
-
-	struct CompareTolower
-	{
-		bool operator() (const char left, const char right)
-		{
-			return tolower(left) == tolower(right);
-		}
-	};
-
-	inline bool strstartswithi(const std::string& left, const std::string& right)
-	{
-		if(left.length() < right.length())
-			return false;
-
-		return std::equal(right.begin(), right.end(), left.begin(), CompareTolower());
-	}
-
-	template<typename T, typename U>
-	class Converter
-	{
-	public:
-		void operator()(const T& in, U& out)
-		{
-			std::stringstream ss;
-			ss << in;
-			ss >> out;
-			if(ss.fail())
-				throw CommandException(ACK_ERROR_ARG, "Argument type mismatch");
-		}
-	};
-
-	template<typename T, typename U>
-	inline void ConvertTo(const T& in, U& out)
-	{
-		Converter<T, U>()(in, out);
-	}
-
-	inline void TrimLeft(std::string& str)
-	{
-		str.erase(str.begin(), std::find_if_not(str.begin(), str.end(), &isspace));
-	}
-	inline void TrimRight(std::string& str)
-	{
-		str.erase(std::find_if_not(str.rbegin(), str.rend(), &isspace).base(), str.end());
-	}
-	inline void Trim(std::string& str)
-	{
-		TrimRight(str);
-		TrimLeft(str);
-	}
 }
 
 #endif

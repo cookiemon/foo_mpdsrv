@@ -6,7 +6,9 @@
 
 namespace foo_mpdsrv
 {
-	DECLARE_COMPONENT_VERSION("MPD Server Component", "0.1 Alpha", "Makes foobar remote controllable through MPD Network interface");
+	DECLARE_COMPONENT_VERSION("MPD Server Component",
+	                          "0.1 Alpha",
+	                          "Makes foobar remote controllable through MPD Network interface");
 	VALIDATE_COMPONENT_FILENAME("foo_mpdsrv.dll");
 	const char* PLUGINNAME = "MPD Server";
 	const wchar_t* PLUGINNAMEW = L"MPD Server";
@@ -19,7 +21,7 @@ namespace foo_mpdsrv
 	class init : public initquit
 	{
 	public:
-		void on_init()
+		virtual void on_init()
 		{
 			TRACK_CALL_TEXT("init::on_init()");
 			if(g_Autostart)
@@ -28,7 +30,7 @@ namespace foo_mpdsrv
 				listener->StartListening(g_NetworkInterface, g_Port);
 			}
 		}
-		void on_quit()
+		virtual void on_quit()
 		{
 			TRACK_CALL_TEXT("init::on_quit()");
 			if(listener.get())
@@ -39,14 +41,15 @@ namespace foo_mpdsrv
 		}
 	};
 
-	initquit_factory_t<init> lalelu;
+	initquit_factory_t<init> connectionlistenerLoader;
 
 	class mainmenu_command_connect : public mainmenu_commands
 	{
 	public:
 		// {A53ABD2F-1BFA-4D63-B1EA-A65429A44198}
 		static const GUID _command_guid;
-		enum {
+		enum
+		{
 			cmd_connect,
 			cmd_disconnect,
 			cmd_reconnect,
@@ -54,10 +57,10 @@ namespace foo_mpdsrv
 			cmd_total
 		};
 	
-		GUID get_parent() { return _command_guid; }
-		t_uint32 get_command_count() { return cmd_total; }
+		virtual GUID get_parent() { return _command_guid; }
+		virtual t_uint32 get_command_count() { return cmd_total; }
 
-		GUID get_command(t_uint32 idx)
+		virtual GUID get_command(t_uint32 idx)
 		{
 			TRACK_CALL_TEXT("mainmenu_command_connect::get_command()");
 			// {44E8D987-5CFE-4A7C-8FC4-CD02AA053F7A}
@@ -85,7 +88,7 @@ namespace foo_mpdsrv
 			}
 		}
 
-		void get_name(t_uint32 idx, pfc::string_base& out)
+		virtual void get_name(t_uint32 idx, pfc::string_base& out)
 		{
 			TRACK_CALL_TEXT("mainmenu_command_connect::get_name()");
 			switch(idx)
@@ -111,7 +114,7 @@ namespace foo_mpdsrv
 			}
 		}
 
-		bool get_display(t_uint32 idx, pfc::string_base& out, t_uint32& flags)
+		virtual bool get_display(t_uint32 idx, pfc::string_base& out, t_uint32& flags)
 		{
 			TRACK_CALL_TEXT("mainmenu_command_connect::get_display()");
 			get_name(idx, out);
@@ -132,7 +135,7 @@ namespace foo_mpdsrv
 			return true;
 		}
 
-		bool get_description(t_uint32 idx, pfc::string_base& out)
+		virtual bool get_description(t_uint32 idx, pfc::string_base& out)
 		{
 			TRACK_CALL_TEXT("mainmenu_command_connect::get_description()");
 			switch(idx)
@@ -158,7 +161,7 @@ namespace foo_mpdsrv
 			}
 		}
 
-		virtual void execute(t_uint32 idx,service_ptr_t<service_base> unused)
+		virtual void execute(t_uint32 idx, service_ptr_t<service_base> unused)
 		{
 			TRACK_CALL_TEXT("mainmenu_command_connect::execute()");
 			switch(idx)
@@ -205,8 +208,9 @@ namespace foo_mpdsrv
 	const GUID mainmenu_command_connect::_command_guid = { 0xa53abd2f, 0x1bfa, 0x4d63, { 0xb1, 0xea, 0xa6, 0x54, 0x29, 0xa4, 0x41, 0x98 } };
 
 	mainmenu_group_popup_factory mainmenugroup(mainmenu_command_connect::_command_guid,
-		mainmenu_groups::file, static_cast<t_uint32>(mainmenu_commands::sort_priority_dontcare), "MPD Server");
+	                                           mainmenu_groups::file,
+	                                           static_cast<t_uint32>(mainmenu_commands::sort_priority_dontcare),
+	                                           "MPD Server");
 
 	mainmenu_commands_factory_t<mainmenu_command_connect> mainmenucommand;
-
 }

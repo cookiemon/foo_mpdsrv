@@ -1,8 +1,6 @@
 #ifndef THREADDUMPSTER
 #define THREADDUMPSTER
 
-#include "MessageSender.h"
-#include "MPDMessageHandler.h"
 #include "SleepyThread.h"
 #include <algorithm>
 #include <map>
@@ -10,6 +8,11 @@
 
 namespace foo_mpdsrv
 {
+	/**
+	 * Map whose erase happens on a different thread
+	 * Function arguments according to STL
+	 * @author Cookiemon
+	 */
 	template<typename _Kty, typename _Vty>
 	class ThreadedEraseMap
 		: public std::map<_Kty, _Vty>,

@@ -3,9 +3,9 @@
 #include "PFCExtensions.h"
 #include "common.h"
 #include "ConfigVars.h"
+#include "Converter.h"
 #include "RequestFromMT.h"
 #include "LibraryConsistencyCheck.h"
-#include "Logger.h"
 #include <sstream>
 #include <unordered_map>
 
@@ -70,9 +70,9 @@ namespace foo_mpdsrv
 			out.append(path.get_ptr());
 			out.append("\n");
 		}
-		Converter<int, std::string> intToStr;
+		Converter<size_t, std::string> intToStr;
 		std::string tmp;
-		intToStr(static_cast<int>(fi.get_length()), tmp);
+		intToStr(static_cast<size_t>(fi.get_length()), tmp);
 		out.append("Time: ");
 		out.append(tmp);
 		out.append("\n");
@@ -226,13 +226,14 @@ namespace foo_mpdsrv
 		bool repeat = (curOrder != "Default");
 		bool random = (curOrder == "Random"
 			|| (strShuffle.length() < curOrder.length() && std::equal(strShuffle.begin(), strShuffle.end(), curOrder.begin())));
-		out << "repeat: " << (repeat?1:0) << "\n";
-		out << "random: " << (random?1:0) << "\n";
+		out << "repeat: " << (repeat ? 1 : 0) << "\n";
+		out << "random: " << (random ? 1 : 0) << "\n";
 
 
 		t_size playlist;
 		req.RequestPlayingPlaylist(playlist);
-		int playlistLength = req.RequestPlaylistItemCount(playlist);
+		t_size playlistLength;
+		req.RequestPlaylistItemCount(playlist, playlistLength);
 		out << "playlistlength: " << playlistLength << "\n";
 
 		std::string state;
@@ -245,11 +246,11 @@ namespace foo_mpdsrv
 		out << "state: " << state << "\n";
 
 		t_size item;
-		if(req.RequestPlayingItemLocation(&playlist, &item))
+		if(req.RequestPlayingItemLocation(playlist, item))
 			out << "song: " << item << "\n" << "songid: " << item << "\n";
 
-		out << "time: " << static_cast<int>(position)
-			<< ":" << static_cast<int>(length) << "\n";
+		out << "time: " << static_cast<size_t>(position)
+			<< ":" << static_cast<size_t>(length) << "\n";
 
 		out << "playlist: 0\n";
 		SendAnswer(out.str());
@@ -307,13 +308,13 @@ namespace foo_mpdsrv
 
 	bool MessageSender::SendAnswer(const std::string& message)
 	{
-		int numBytes = message.length();
+		size_t numBytes = message.length();
 		return SendBytes(message.c_str(), numBytes);
 	}
 
 	bool MessageSender::SendAnswer(const pfc::string8& message)
 	{
-		int numBytes = message.get_length();
+		size_t numBytes = message.get_length();
 		return SendBytes(message.get_ptr(), numBytes);
 	}
 
@@ -328,7 +329,7 @@ namespace foo_mpdsrv
 
 	bool MessageSender::SendAnswer(const char* message)
 	{
-		int numBytes = strlen(message);
+		size_t numBytes = strlen(message);
 		return SendBytes(message, numBytes);
 	}
 
@@ -376,12 +377,12 @@ namespace foo_mpdsrv
 		}
 	}
 
-	typedef std::unordered_map<pfc::string8, pfc::string8, PfcStringHash> PfcStdStringDict;
+	typedef std::unordered_map<pfc::string8, pfc::string8> PfcStdStringDict;
 	typedef std::pair<pfc::string8, pfc::string8> PfcStdStringPair;
 
-	PfcStdStringDict initDict()
+	static PfcStdStringDict InitDict()
 	{
-		TRACK_CALL_TEXT("MessageSender::initDict()");
+		TRACK_CALL_TEXT("MessageSender::InitDict()");
 		PfcStdStringDict dict;
 		dict.insert(PfcStdStringPair("file", "file"));
 		dict.insert(PfcStdStringPair("artist", "Artist"));
@@ -399,7 +400,7 @@ namespace foo_mpdsrv
 
 	pfc::string8 MessageSender::TranslateMetadata(const pfc::string8& meta)
 	{
-		static PfcStdStringDict fooToMpdDict = initDict();
+		static PfcStdStringDict fooToMpdDict = InitDict();
 		const auto& mpdMeta = fooToMpdDict.find(meta);
 		if(mpdMeta == fooToMpdDict.end())
 			return "";

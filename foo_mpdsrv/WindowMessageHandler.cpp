@@ -34,7 +34,9 @@ namespace foo_mpdsrv
 			SOCKET sock = newHandler.first->second.GetId();
 			bool isValid = newHandler.first->second.IsValid();
 			bool isActive = newHandler.first->second.IsThreadActive();
-			Logger(Logger::FINEST) << "Started thread for Socket " << sock << "(Valid: " << isValid << ",Active:" << isActive << ")";
+			Logger(Logger::FINEST) << "Started thread for Socket " << sock
+			                       << "(Valid: " << isValid << ", "
+			                          "Active:" << isActive << ")";
 #endif
 		}
 	}
@@ -74,11 +76,11 @@ namespace foo_mpdsrv
 	private:
 		std::auto_ptr<WindowMessageHandler> foo;
 	public:
-		void on_init()
+		virtual void on_init()
 		{
 			foo.reset(new WindowMessageHandler);
 		}
-		void on_quit()
+		virtual void on_quit()
 		{
 			foo.release();
 		}

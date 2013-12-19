@@ -16,54 +16,18 @@
     <Filter Include="Header Files\ProtocolHandlers">
       <UniqueIdentifier>{a039f945-8258-4c6e-b01c-30bbe753d6c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\NetworkCommunication">
+      <UniqueIdentifier>{714175e9-703d-4a91-a712-2814b71d8013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Config">
+      <UniqueIdentifier>{2acb13a6-97ab-4080-9c3c-660af2ec0653}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{487aa624-130f-44d7-a6cf-f00a838ae293}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ConnectionListener.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowMessageHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MPDMessageHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageSender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandException.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ConfigVars.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ConfigDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NetworkInformation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LibraryConsistencyCheck.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SleepyThread.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RequestFromMT.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlaybackCommands.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DataRequestHandler.h">
-      <Filter>Header Files\ProtocolHandlers</Filter>
-    </ClInclude>
-    <ClInclude Include="DataBaseHandler.h">
       <Filter>Header Files\ProtocolHandlers</Filter>
     </ClInclude>
     <ClInclude Include="GeneralCommandHandler.h">
@@ -75,20 +39,71 @@
     <ClInclude Include="PlaylistCommandHandler.h">
       <Filter>Header Files\ProtocolHandlers</Filter>
     </ClInclude>
-    <ClInclude Include="Logger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadedEraseMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PFCExtensions.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="RequestFromMT.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="AutoFreeHandle.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="PFCExtensions.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ConnectionListener.h">
+      <Filter>Header Files\NetworkCommunication</Filter>
+    </ClInclude>
+    <ClInclude Include="LibraryConsistencyCheck.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageSender.h">
+      <Filter>Header Files\NetworkCommunication</Filter>
+    </ClInclude>
+    <ClInclude Include="MPDMessageHandler.h">
+      <Filter>Header Files\NetworkCommunication</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkInformation.h">
+      <Filter>Header Files\NetworkCommunication</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaybackCommands.h">
+      <Filter>Header Files\ProtocolHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="SleepyThread.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadedEraseMap.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowMessageHandler.h">
+      <Filter>Header Files\NetworkCommunication</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtil.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Converter.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandException.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="RefCounter.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigDialog.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigVars.h">
+      <Filter>Header Files\Config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,17 +1,18 @@
 #include "DataRequestHandler.h"
 #include "RequestFromMT.h"
 #include "common.h"
+#include "StringUtil.h"
 #include "PFCExtensions.h"
+#include "MessageSender.h"
 #include <unordered_set>
 
 namespace foo_mpdsrv
 {
 	// Local functions and classes
 	class SortByFolder;
-	void FilterListByPath(pfc::list_t<metadb_handle_ptr>& out, const pfc::string8& start);
-	void NormalizePath(pfc::string8& path);
+	static void FilterListByPath(pfc::list_t<metadb_handle_ptr>& out, const pfc::string8& start);
+	static void NormalizePath(pfc::string8& path);
 
-	
 	void HandleStats(MessageSender& caller, std::vector<std::string>&)
 	{
 		TRACK_CALL_TEXT("HandleStats()");
@@ -38,7 +39,7 @@ namespace foo_mpdsrv
 	class SortByFolder : public pfc::list_base_t<metadb_handle_ptr>::sort_callback
 	{
 		static_api_ptr_t<library_manager> man;
-		virtual int compare(const metadb_handle_ptr& p_item1,const metadb_handle_ptr& p_item2)
+		virtual int compare(const metadb_handle_ptr& p_item1, const metadb_handle_ptr& p_item2)
 		{
 			pfc::string8 name1;
 			pfc::string8 name2;
@@ -61,7 +62,7 @@ namespace foo_mpdsrv
 		req.RequestLibraryItems(out);
 		FilterListByPath(out, path);
 		
-		std::unordered_set<pfc::string8, PfcStringHash> sentFolders;
+		std::unordered_set<pfc::string8> sentFolders;
 		pfc::string8 currentFolder;
 		t_size libSize = out.get_count();
 
@@ -93,10 +94,10 @@ namespace foo_mpdsrv
 		}
 	}
 
-	void FilterListByPath(pfc::list_t<metadb_handle_ptr>& out, const pfc::string8& start)
+	static void FilterListByPath(pfc::list_t<metadb_handle_ptr>& out, const pfc::string8& start)
 	{
 		TRACK_CALL_TEXT("FilterListByPath()");
-		int num = 0;
+		t_size num = 0;
 		bool intervalStarted = false;
 		static_api_ptr_t<library_manager> lib;
 
@@ -104,7 +105,7 @@ namespace foo_mpdsrv
 		{
 			pfc::string8 filename;
 			lib->get_relative_path(out[i], filename);
-			if(!strstartswithi(filename.get_ptr(), start.get_ptr()))
+			if(!StrStartsWithLC(filename.get_ptr(), start.get_ptr()))
 			{
 				if(intervalStarted)
 					num += 1;
@@ -131,7 +132,7 @@ namespace foo_mpdsrv
 		}
 	}
 
-	void NormalizePath(pfc::string8& path)
+	static void NormalizePath(pfc::string8& path)
 	{
 		if(!path.ends_with('/'))
 			path.add_char('/');

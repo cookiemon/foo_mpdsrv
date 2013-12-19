@@ -1,4 +1,5 @@
 #include "SleepyThread.h"
+#include <assert.h>
 
 namespace foo_mpdsrv
 {
@@ -9,9 +10,12 @@ namespace foo_mpdsrv
 	}
 	SleepyThread::SleepyThread(SleepyThread&& right)
 	{
+		assert(!right.IsThreadActive());
+		assert(!IsThreadActive());
 		_abort = right._abort;
 		_event.set(right._event.get());
 		right._event.set(NULL);
+		right._abort = true;
 	}
 	SleepyThread::~SleepyThread()
 	{

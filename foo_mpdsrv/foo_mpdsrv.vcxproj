@@ -167,9 +167,11 @@
     <ClInclude Include="ConfigDialog.h" />
     <ClInclude Include="ConfigVars.h" />
     <ClInclude Include="ConnectionListener.h" />
-    <ClInclude Include="DataBaseHandler.h" />
+    <ClInclude Include="Converter.h" />
     <ClInclude Include="DataRequestHandler.h" />
     <ClInclude Include="PFCExtensions.h" />
+    <ClInclude Include="RefCounter.h" />
+    <ClInclude Include="StringUtil.h" />
     <ClInclude Include="ThreadedEraseMap.h" />
     <ClInclude Include="GeneralCommandHandler.h" />
     <ClInclude Include="LibraryConsistencyCheck.h" />

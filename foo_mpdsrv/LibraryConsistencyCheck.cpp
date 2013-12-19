@@ -1,4 +1,5 @@
 #include "LibraryConsistencyCheck.h"
+#include "RequestFromMT.h"
 
 namespace foo_mpdsrv
 {
@@ -77,7 +78,7 @@ namespace foo_mpdsrv
 			instance->set_info(p_item->get_subsong_index(), fi, abort_callback_dummy());
 			instance->commit(abort_callback_dummy());
 			if(g_MaxId <= newId)
-				g_MaxId = newId+1;
+				g_MaxId = newId + 1;
 		}
 		catch(foobar2000_io::exception_io_sharing_violation& e)
 		{
@@ -91,7 +92,7 @@ namespace foo_mpdsrv
 			instance->set_info(p_item->get_subsong_index(), fi, abort_callback_dummy());
 			instance->commit(abort_callback_dummy());
 			if(g_MaxId <= newId)
-				g_MaxId = newId+1;
+				g_MaxId = newId + 1;
 
 			req.DoApiCall<playback_control>(&playback_control::start, playback_control::track_command_play, false);
 		}

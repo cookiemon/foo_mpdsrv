@@ -7,6 +7,10 @@
 
 namespace foo_mpdsrv
 {
+	/**
+	 * List of possible error numbers
+	 * @todo complete
+	 */
 	enum ACK
 	{
 		ACK_ERROR_NOT_LIST       =  1,
@@ -22,16 +26,32 @@ namespace foo_mpdsrv
 		ACK_ERROR_PLAYER_SYNC    = 55,
 		ACK_ERROR_EXIST          = 56
 	};
+	
+	/**
+	 * Exception for mpd errors
+	 * @author Cookiemon
+	 */
 	class CommandException : public std::exception
 	{
 	private:
-		ACK _error;
+		const ACK _error;
 	public:
+		/**
+		 * Creates an exception bound with an error message
+		 * @author Cookiemon
+		 * @param error MPD error number
+		 * @param msg Error message
+		 */
 		CommandException(ACK error, const char* msg) : std::exception(msg), _error(error)
 		{
 		}
-
-		int GetError() const
+		
+		/**
+		 * Returns MPD error number
+		 * @author Cookiemon
+		 * @return Error number according to mpd spec
+		 */
+		ACK GetError() const
 		{
 			return _error;
 		}
