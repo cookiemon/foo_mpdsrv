@@ -9,7 +9,6 @@ namespace foo_mpdsrv
 	 * Locks and unlocks a metadb handle
 	 * for database manipulation
 	 * @author Cookiemon
-	 * @todo refactor
 	 */
 	class FooMetadbHandleLocker
 	{
@@ -37,7 +36,6 @@ namespace foo_mpdsrv
 	 * Locks and unlocks a metadb handle pointer
 	 * for database manipulation
 	 * @author Cookiemon
-	 * @todo refactor
 	 */
 	class FooMetadbHandlePtrLocker
 	{
@@ -64,7 +62,6 @@ namespace foo_mpdsrv
 	/**
 	 * Automatically locks and unlocks handles
 	 * @author Cookiemon
-	 * @todo refactor
 	 */
 	template<typename T, typename U>
 	class AutoFreeHandle
