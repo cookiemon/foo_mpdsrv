@@ -207,11 +207,11 @@ namespace foo_mpdsrv
 			}
 			else
 			{
-				argEnd = std::find_if(start + 1, end, &isspace);
+				argEnd = std::find_if(start + 1, end, &CharIsSpace);
 				ret.push_back(std::string(start, argEnd));
 			}
 
-			start = std::find_if_not(argEnd, end, &isspace);
+			start = std::find_if_not(argEnd, end, &CharIsSpace);
 		}
 		return ret;
 	}
