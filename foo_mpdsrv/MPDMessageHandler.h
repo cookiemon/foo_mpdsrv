@@ -4,6 +4,7 @@
 #include "common.h"
 #include "MessageSender.h"
 #include "SleepyThread.h"
+#include "RWLock.h"
 #include <vector>
 #include <functional>
 #include <unordered_map>
@@ -43,6 +44,11 @@ namespace foo_mpdsrv
 		// Alternate implementation would be a state machine
 		// for handling simple commands and both command lists
 		void (MPDMessageHandler::*_activeHandleCommandRoutine)(const std::string& command);
+
+#ifdef FOO_MPDSRV_THREADED
+		// Lock on buffer
+		RWLock _bufferLock;
+#endif
 
 	private:
 		/**

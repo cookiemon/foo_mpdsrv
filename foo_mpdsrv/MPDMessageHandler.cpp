@@ -60,10 +60,12 @@ namespace foo_mpdsrv
 	void MPDMessageHandler::PushBuffer(const char* buf, size_t numBytes)
 	{
 		TRACK_CALL_TEXT("MPDMessageHandler::PushBuffer()");
-		_buffer.insert(_buffer.end(), buf, buf + numBytes);
 #ifdef FOO_MPDSRV_THREADED
+		WriteLockHandle writeLock = _bufferLock.LockWrite();
+		_buffer.insert(_buffer.end(), buf, buf + numBytes);
 		Wake();
 #else
+		_buffer.insert(_buffer.end(), buf, buf + numBytes);
 		HandleBuffer();
 #endif
 	}
@@ -72,6 +74,13 @@ namespace foo_mpdsrv
 	{
 		TRACK_CALL_TEXT("MPDMessageHandler::HandleBuffer()");
 		char newLineChars[] = { '\n', '\r' };
+		int blubb = '\x8B';
+
+#ifdef FOO_MPDSRV_THREADED
+		// Need lock in multithreaded environment
+		WriteLockHandle writeHandle = _bufferLock.LockWrite();
+#endif
+
 		BufferType::iterator begin = _buffer.begin();
 		BufferType::iterator end = _buffer.end();
 		BufferType::iterator newLine;

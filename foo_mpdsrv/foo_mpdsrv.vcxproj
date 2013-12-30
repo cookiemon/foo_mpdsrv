@@ -171,6 +171,7 @@
     <ClInclude Include="DataRequestHandler.h" />
     <ClInclude Include="PFCExtensions.h" />
     <ClInclude Include="RefCounter.h" />
+    <ClInclude Include="RWLock.h" />
     <ClInclude Include="StringUtil.h" />
     <ClInclude Include="ThreadedEraseMap.h" />
     <ClInclude Include="GeneralCommandHandler.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="PlaybackCommandHandler.cpp" />
     <ClCompile Include="PlaybackCommands.cpp" />
     <ClCompile Include="PlaylistCommandHandler.cpp" />
+    <ClCompile Include="RWLock.cpp" />
     <ClCompile Include="SleepyThread.cpp" />
     <ClCompile Include="WindowMessageHandler.cpp" />
   </ItemGroup>
