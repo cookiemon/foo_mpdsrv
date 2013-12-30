@@ -200,16 +200,12 @@ namespace foo_mpdsrv
 		{
 			std::string::const_iterator argEnd;
 			if(*start == '"')
-			{
 				argEnd = std::find(start + 1, end, '"');
-				ret.push_back(std::string(start, argEnd));
-				argEnd += 1;
-			}
 			else
-			{
 				argEnd = std::find_if(start + 1, end, &CharIsSpace);
-				ret.push_back(std::string(start, argEnd));
-			}
+			ret.push_back(std::string(start, argEnd));
+			if(argEnd != cmd.end())
+				argEnd += 1;
 
 			start = std::find_if_not(argEnd, end, &CharIsSpace);
 		}
