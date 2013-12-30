@@ -12,13 +12,14 @@ namespace foo_mpdsrv
 	void WindowMessageHandler::ReceiveAndPush(SOCKET sock)
 	{
 		int bytesRec = recv(sock, _buffer, sizeof(_buffer), 0);
-		if(bytesRec != SOCKET_ERROR)
+		while(bytesRec != SOCKET_ERROR)
 		{
 			_handlers.find(sock)->second.PushBuffer(_buffer, bytesRec);
+			bytesRec = recv(sock, _buffer, sizeof(_buffer), 0);
 		}
-		else
+		int err = WSAGetLastError();
+		if(err != WSAEWOULDBLOCK)
 		{
-			int err = WSAGetLastError();
 			Logger(Logger::SEVERE).LogWinError("Could not read from network socket", err);
 		}
 	}
