@@ -209,7 +209,7 @@ namespace foo_mpdsrv
 
 	mainmenu_group_popup_factory mainmenugroup(mainmenu_command_connect::_command_guid,
 	                                           mainmenu_groups::file,
-	                                           static_cast<t_uint32>(mainmenu_commands::sort_priority_dontcare),
+	                                           mainmenu_commands::sort_priority_dontcare,
 	                                           "MPD Server");
 
 	mainmenu_commands_factory_t<mainmenu_command_connect> mainmenucommand;
