@@ -136,13 +136,8 @@ namespace foo_mpdsrv
 	{
 		if(!path.ends_with('/'))
 			path.add_char('/');
-		if(!(path[0] == '/'))
-		{
-			pfc::string8 newPath("/");
-			newPath.add_string(path);
-			path = newPath;
-		}
-		path.remove_chars(0, 1);
+		if(path[0] == '/')
+			path.remove_chars(0, 1);
 		path.replace_char('/', '\\', 0);
 	}
 }
