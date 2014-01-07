@@ -10,6 +10,7 @@
 #include "GeneralCommandHandler.h"
 #include "DataRequestHandler.h"
 #include "Timer.h"
+#include "MessageTransporter.h"
 #include <algorithm>
 #include <functional>
 #include <fstream>
@@ -25,7 +26,7 @@ namespace foo_mpdsrv
 		TRACK_CALL_TEXT("MPDMessageHandler::MPDMessageHandler(&&)");
 	}
 
-	MPDMessageHandler::MPDMessageHandler(SOCKET connection) : _sender(connection)
+	MPDMessageHandler::MPDMessageHandler(MessageTransporter&& transp) : _sender(std::move(transp))
 	{
 		TRACK_CALL_TEXT("MPDMessageHandler::MPDMessageHandler(socket)");
 		_actions.insert(std::make_pair("ping", &HandlePing));

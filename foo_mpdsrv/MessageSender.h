@@ -2,6 +2,7 @@
 #define MESSAGESENDER_H
 
 #include "common.h"
+#include "MessageTransporter.h"
 #include <set>
 
 namespace foo_mpdsrv
@@ -15,15 +16,16 @@ namespace foo_mpdsrv
 	class MessageSender
 	{
 	private:
-		SOCKET _sock;
+		MessageTransporter _transp;
 	public:
 		/**
-		 * Creates sender that is bound to the next
-		 * accepted connection on the given socket
+		 * Creates sender that is bound to a
+		 * specified transporter which is used
+		 * for data transmission
 		 * @author Cookiemon
 		 * @param connection Connection to bind to
 		 */
-		explicit MessageSender(SOCKET connection);
+		explicit MessageSender(MessageTransporter&& transporter);
 		/**
 		 * Moveconstructs the object
 		 * @author Cookiemon
@@ -31,11 +33,6 @@ namespace foo_mpdsrv
 		 * @param right Object to move
 		 */
 		MessageSender(MessageSender&& right);
-		/**
-		 * Closes the bound socket
-		 * @author Cookiemon
-		 */
-		~MessageSender();
 
 		// ---- No documentation since rewrite probably incoming
 		void SendWelcome();
@@ -63,24 +60,15 @@ namespace foo_mpdsrv
 		 * is established.
 		 * @author Cookiemon
 		 */
-		bool IsValid() { return _sock != SOCKET_ERROR; }
+		bool IsValid() { return _transp.IsValid(); }
 		/**
 		 * Returns OS specific identifier of connection
 		 * @todo no os specific function
 		 * @author Cookiemon
 		 */
-		SOCKET GetId() { return _sock; }
+		SOCKET GetId() { return _transp.GetId(); }
 
 	private:
-		// ---- No documentation because rewrite is probably coming up
-		// ---- Will either be future public interface of MessageSender
-		// ---- Or future public interface of <someotherclass>
-		bool SendAnswer(const std::string& answ);
-		bool SendAnswer(const pfc::string8& answ);
-		bool SendAnswer(const char* answ);
-		bool SendAnswer(std::istream& answ);
-		bool SendBytes(const char* buf, int numBytes);
-		void WaitForSocket();
 		pfc::string8 TranslateMetadata(const pfc::string8& data);
 	};
 

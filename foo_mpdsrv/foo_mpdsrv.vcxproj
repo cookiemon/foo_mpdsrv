@@ -188,6 +188,7 @@
     <ClInclude Include="SleepyThread.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="WindowMessageHandler.h" />
+    <ClInclude Include="MessageTransporter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConfigDialog.cpp" />
@@ -211,6 +212,7 @@
     <ClCompile Include="GeneralCommandHandler.cpp" />
     <ClCompile Include="LibraryConsistencyCheck.cpp" />
     <ClCompile Include="MessageSender.cpp" />
+    <ClCompile Include="MessageTransporter.cpp" />
     <ClCompile Include="MPDMessageHandler.cpp" />
     <ClCompile Include="NetworkInformation.cpp" />
     <ClCompile Include="PlaybackCommandHandler.cpp" />

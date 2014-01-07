@@ -26,7 +26,7 @@ namespace foo_mpdsrv
 
 	void WindowMessageHandler::AcceptNewClient(SOCKET sock)
 	{
-		MPDMessageHandler newClient(sock);
+		MPDMessageHandler newClient(std::move(MessageTransporter(sock)));
 		if(newClient.IsValid())
 		{
 			auto& newHandler = _handlers.insert(MessageHandlerStoragePair(newClient.GetId(), std::move(newClient)));

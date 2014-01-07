@@ -11,36 +11,23 @@
 
 namespace foo_mpdsrv
 {
-	MessageSender::MessageSender(SOCKET connection)
+	MessageSender::MessageSender(MessageTransporter&& transporter) : _transp(std::move(transporter))
 	{
 		TRACK_CALL_TEXT("MessageSender::MessageSender()");
-		_sock = accept(connection, NULL, NULL);
 		if(IsValid())
 		{
-			SendAnswer(g_MPDGreeting);
+			_transp.SendAnswer(g_MPDGreeting);
 		}
 	}
 
-	MessageSender::MessageSender(MessageSender&& right)
+	MessageSender::MessageSender(MessageSender&& right) : _transp(std::move(right._transp))
 	{
-		TRACK_CALL_TEXT("MessageSender::MessageSender(&&)");
-		_sock = right._sock;
-		right._sock = static_cast<SOCKET>(SOCKET_ERROR);
-	}
-
-	MessageSender::~MessageSender()
-	{
-		TRACK_CALL_TEXT("MessageSender::~MessageSender()");
-		if(_sock != SOCKET_ERROR)
-		{
-			closesocket(_sock);
-		}
 	}
 
 	void MessageSender::SendWelcome()
 	{
 		TRACK_CALL_TEXT("MessageSender::SendWelcome()");
-		SendAnswer("OK MPD 0.12.0\n");
+		_transp.SendAnswer("OK MPD 0.12.0\n");
 	}
 
 	void MessageSender::SendSongMetadata(metadb_handle_ptr song)
@@ -48,7 +35,7 @@ namespace foo_mpdsrv
 		TRACK_CALL_TEXT("MessageSender::SendSongMetadata()");
 		std::string str;
 		GetSongMetadataString(str, song);
-		SendAnswer(str);
+		_transp.SendAnswer(str);
 	}
 
 	void MessageSender::GetSongMetadataString(std::string& out, metadb_handle_ptr& song)
@@ -142,7 +129,7 @@ namespace foo_mpdsrv
 				songData.append("Id: ");
 				songData.append(id);
 				songData.append("\n");
-				SendAnswer(songData);
+				_transp.SendAnswer(songData);
 			}
 			catch(foobar2000_io::exception_io_not_found& e)
 			{
@@ -165,7 +152,7 @@ namespace foo_mpdsrv
 			msg.add_string("file: ");
 		msg.add_string(name);
 		msg.add_char('\n');
-		SendAnswer(msg);
+		_transp.SendAnswer(msg);
 	}
 
 	void MessageSender::SendPlaylistPath(size_t idx)
@@ -177,7 +164,7 @@ namespace foo_mpdsrv
 		pfc::string8 msg("playlist: ");
 		msg.add_string(name);
 		msg.add_char('\n');
-		SendAnswer(msg);
+		_transp.SendAnswer(msg);
 	}
 
 	void MessageSender::SendStatus()
@@ -253,7 +240,7 @@ namespace foo_mpdsrv
 			<< ":" << static_cast<size_t>(length) << "\n";
 
 		out << "playlist: 0\n";
-		SendAnswer(out.str());
+		_transp.SendAnswer(out.str());
 	}
 
 	void MessageSender::SendStats()
@@ -276,26 +263,25 @@ namespace foo_mpdsrv
 	void MessageSender::SendOutputs()
 	{
 		TRACK_CALL_TEXT("MessageSender::SendOutputs()");
-		SendAnswer("outputid: 0\noutputname: foobar\noutputenabled: 1\n");
+		_transp.SendAnswer("outputid: 0\noutputname: foobar\noutputenabled: 1\n");
 	}
 
 	void MessageSender::SendOk()
 	{
 		TRACK_CALL_TEXT("MessageSender::SendOk()");
-		SendAnswer("OK\n");
+		_transp.SendAnswer("OK\n");
 	}
 
 	void MessageSender::SendListOk()
 	{
 		TRACK_CALL_TEXT("MessageSender::SendListOk()");
-		SendAnswer("list_OK\n");
+		_transp.SendAnswer("list_OK\n");
 	}
 
 	void MessageSender::CloseConnection()
 	{
 		TRACK_CALL_TEXT("MessageSender::CloseConnection()");
-		closesocket(_sock);
-		_sock = SOCKET_ERROR;
+		_transp.Close();
 	}
 
 	void MessageSender::SendError(unsigned int line, const std::string& command, const CommandException& err)
@@ -303,78 +289,7 @@ namespace foo_mpdsrv
 		TRACK_CALL_TEXT("MessageSender::SendError()");
 		std::stringstream ans;
 		ans << "ACK [" << err.GetError() << '@' << line << "] {" << command << "} " << err.what() << '\n';
-		SendAnswer(ans.str());
-	}
-
-	bool MessageSender::SendAnswer(const std::string& message)
-	{
-		size_t numBytes = message.length();
-		return SendBytes(message.c_str(), numBytes);
-	}
-
-	bool MessageSender::SendAnswer(const pfc::string8& message)
-	{
-		size_t numBytes = message.get_length();
-		return SendBytes(message.get_ptr(), numBytes);
-	}
-
-	bool MessageSender::SendAnswer(std::istream& message)
-	{
-		std::string buf;
-		bool retVal = true;
-		while(std::getline(message, buf))
-			retVal = retVal && SendAnswer(buf + '\n');
-		return retVal;
-	}
-
-	bool MessageSender::SendAnswer(const char* message)
-	{
-		size_t numBytes = strlen(message);
-		return SendBytes(message, numBytes);
-	}
-
-	bool MessageSender::SendBytes(const char* buf, int numBytes)
-	{
-		if(_sock == static_cast<SOCKET>(SOCKET_ERROR)) { return false; }
-		if(numBytes == 0) { return true; }
-
-		WaitForSocket();
-		
-		int bytesSend = send(_sock, buf, numBytes, 0);
-		if(bytesSend == static_cast<SOCKET>(SOCKET_ERROR))
-		{
-			int lastError = WSAGetLastError();
-			if(lastError != WSAEWOULDBLOCK)
-			{
-				Logger(Logger::SEVERE).LogWinError("Could not send message", lastError);
-				return false;
-			}
-			else
-			{
-				Logger(Logger::SEVERE) << "send returned WSAEWOULDBLOCK";
-			}
-		}
-		else if(numBytes != bytesSend)
-		{
-			Logger(Logger::SEVERE) << "Not all bytes were sent";
-			return false;
-		}
-		Logger(Logger::FINEST).Log("O: ").Write(buf, numBytes);
-		return true;
-	}
-
-	void MessageSender::WaitForSocket()
-	{
-		int lastError = 0;
-		fd_set fds;
-		fds.fd_count = 1;
-		fds.fd_array[0] = _sock;
-		lastError = select(0, NULL, &fds, NULL, NULL);
-		if(lastError == SOCKET_ERROR)
-		{
-			lastError = WSAGetLastError();
-			Logger(Logger::SEVERE).LogWinError("Could not select socket", lastError);
-		}
+		_transp.SendAnswer(ans.str());
 	}
 
 	typedef std::unordered_map<pfc::string8, pfc::string8> PfcStdStringDict;

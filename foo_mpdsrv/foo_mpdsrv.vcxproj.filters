@@ -108,6 +108,9 @@
     <ClInclude Include="RWLock.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="MessageTransporter.h">
+      <Filter>Header Files\NetworkCommunication</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -156,6 +159,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RWLock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageTransporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

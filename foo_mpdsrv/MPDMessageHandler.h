@@ -81,10 +81,10 @@ namespace foo_mpdsrv
 		/**
 		 * Constructs a new message handler
 		 * @author Cookiemon
-		 * @param connection Socket where the reply client
+		 * @param transp Transporter that is used for message sending
 		 * is taken from
 		 */
-		explicit MPDMessageHandler(SOCKET connection);
+		explicit MPDMessageHandler(MessageTransporter&& transp);
 		/**
 		 * Finishes threads if multithreading enabled
 		 * @author Cookiemon
