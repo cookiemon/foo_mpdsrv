@@ -9,8 +9,6 @@ namespace foo_mpdsrv
 {
 	/**
 	 * Class used for message replies
-	 * @todo clean up
-	 * @todo should only be for sending text not formatting. alternative: extract sending as its own implementation class
 	 * @author Cookiemon
 	 */
 	class MessageSender
